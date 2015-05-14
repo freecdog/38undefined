@@ -1,0 +1,12 @@
+<div>
+    <ul>
+        <li ng-repeat="elem in jElements | filter: nameSnippetFilter | orderBy: jOrderProp">
+            <span>{{elem.name}}</span>
+            <a href="#/elements/{{elem.id}}">{{elem.id}}</a>
+            <img ng-src="{{elem.image}}" style="-webkit-filter: invert(100%);">
+            <span>:</span>
+            <br>
+            <span>{{elem.snippet}} {{elem.date}}</span>
+        </li>
+    </ul>
+</div>

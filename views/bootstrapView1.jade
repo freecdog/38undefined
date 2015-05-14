@@ -1,0 +1,570 @@
+//
+   Created by jaric on 29.01.2015.
+
+doctype html
+html(lang='en')
+    head
+        meta(charset='utf-8')
+        meta(http-equiv='X-UA-Compatible', content='IE=edge')
+        //-meta(name="viewport", content="width=device-width, initial-scale=1")
+        link(rel='stylesheet', href='/bootstrap/css/bootstrap.css')
+        link(rel='stylesheet', href='/bootstrap/css/bootstrap-theme.css')
+        title= "bootstrapTest"
+        meta(name="viewport", content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=yes")
+        script(src='/javascripts/angular.js')
+        script(src='/javascripts/ui-bootstrap-tpls-0.12.0.js')
+        script(src='/javascripts/angBootstrap1.js')
+    body(ng-app='jAppBootstrap', ng-controller='jControllerBootstrap')
+
+        div(class='container')
+            div(class='row')
+                h1
+                    span Watch these links
+                    br
+                    a(href='http://getbootstrap.com/components/') http://getbootstrap.com/components/
+                    br
+                    a(href='http://getbootstrap.com/javascript/') http://getbootstrap.com/javascript/
+                    br
+                    span And all these examples with Angular
+                    br
+                    a(href='http://angular-ui.github.io/bootstrap/') http://angular-ui.github.io/bootstrap/
+
+        div &nbsp;
+        div(class='text-center') ——— pyramide (same as container-fluid) ————
+        div &nbsp;
+
+        -for (var i=0; i < 12; i++)
+            div(class='col-xs-1 text-center modal-content') 1
+        -for (var i=0; i < 6; i++)
+            div(class='col-xs-2 text-center modal-content') 2
+        -for (var i=0; i < 4; i++)
+            div(class='col-xs-3 text-center modal-content') 3
+        -for (var i=0; i < 3; i++)
+            div(class='col-xs-4 text-center modal-content') 4
+        -for (var i=0; i < 2; i++)
+            div(class='col-xs-6 text-center modal-content') 6
+        -for (var i=0; i < 1; i++)
+            div(class='col-xs-12 text-center modal-content') 12
+
+        div &nbsp;
+        div(class='text-center') ——— pyramide in container ———
+        div &nbsp;
+
+        div(class='container')
+            div(class='row')
+                -for (var i=0; i < 12; i++)
+                    div(class='col-xs-1 text-center modal-content') 1
+                -for (var i=0; i < 6; i++)
+                    div(class='col-xs-2 text-center modal-content') 2
+                -for (var i=0; i < 4; i++)
+                    div(class='col-xs-3 text-center modal-content') 3
+                -for (var i=0; i < 3; i++)
+                    div(class='col-xs-4 text-center modal-content') 4
+                -for (var i=0; i < 2; i++)
+                    div(class='col-xs-6 text-center modal-content') 6
+                -for (var i=0; i < 1; i++)
+                    div(class='col-xs-12 text-center modal-content') 12
+
+        div &nbsp;
+        div(class='text-center') ——— offset ———
+        div &nbsp;
+
+        div(class='container')
+            div(class='row')
+                div(class='col-xs-3 text-center modal-content') 3
+                div(class='col-xs-3 text-center modal-content') 3
+
+                div(class='col-xs-3 col-xs-offset-3 text-center modal-content') <— offset
+
+        div &nbsp;
+        div(class='text-center') ——— nesting (+nested container-fluid[left]) ———
+        div &nbsp;
+
+        div(class='container-fluid')
+            div(class='row')
+                div(class='col-xs-6 text-center modal-content')
+                    div(class='container-fluid')
+                        div(class='row')
+                            div(class='col-xs-4 text-center modal-content') 4/2
+                            div(class='col-xs-8 text-center modal-content') 8/2
+                div(class='col-xs-6 text-center modal-content')
+                    div(class='row')
+                        div(class='col-xs-5 text-center modal-content') 5/2
+                        div(class='col-xs-3 text-center modal-content') 3/2
+                        div(class='col-xs-4 text-center modal-content') 4/2
+
+        div &nbsp;
+        div(class='text-center') ——— Dropdown menu ———
+        div &nbsp;
+
+        ul(class='dropdown-menu', role='menu', aria-labelledby='dropdownMenu')
+            li
+                a(href='#') Action
+            li
+                a(href='#') Another action
+            li
+                a(href='#') My menu point
+            li
+                a(href='#') Another my menu point
+            li
+                a(href='#') Something else here
+            li(class='divider')
+            li
+                a(href='#') Separated link
+
+        div &nbsp;
+        div(class='text-center') ——— !Dropdown menu ———
+        div &nbsp;
+
+        div(class='container-fluid', ng-controller='DropdownCtrl')
+            div(class='btn-group')
+                button(class='btn btn-danger') Danger
+                button(class='btn btn-danger dropdown-toggle', data-toggle='dropdown', ng-click='test()')
+                    span(class='caret')
+                ul(class='dropdown-menu')
+                    li()
+                        a(href='#') Action
+                    li()
+                        a(href='#') Another action
+                    li()
+                        a(href='#') Something else here
+                    li(class='divider')
+                    li()
+                        a(href='#') Separated link
+
+        div &nbsp;
+        div(class='text-center') ——— !Search in btn-group (+glyphicon) ————
+        div &nbsp;
+
+        div(class='btn-group')
+            //-input(type='number', class='form-control ', placeholder='your id')
+            input(type='number', class='form-control ', placeholder='your id')
+            button(class='btn btn-success center-block')
+                span(class='glyphicon glyphicon-search')
+                span Search
+                span(class='glyphicon glyphicon-search')
+
+        div &nbsp;
+        div(class='text-center') ——— Headings ———
+        div &nbsp;
+
+        h1 Heading1
+        h2 Heading2
+        h3 Heading3
+        h4 Heading4
+        h5 Heading5
+        h6 Heading6
+
+        div &nbsp;
+        div(class='text-center') ——— blockquote ———
+        div &nbsp;
+
+        blockquote
+            p That this is needed, desperately needed, is indicated by the incredible uptake of Bootstrap. I use it in all the server software I'm working on. And it shows through in the templating language I'm developing, so everyone who uses it will find it's "just there" and works, any time you want to do a Bootstrap technique. Nothing to do, no libraries to include. It's as if it were part of the hardware. Same approach that Apple took with the Mac OS in 1984.
+            small Developer of RSS,
+                cite(title="Source Title")  Dave Winer
+
+        div &nbsp;
+        div(class='text-center') ——— blockquote right (in blockquote (in container)) ———
+        div &nbsp;
+
+        div(class='container-fluid')
+            blockquote
+                blockquote(class='pull-right')
+                    | Developer
+                    small of RSS,
+                        cite(title="Source Title")  Dave Winer
+                p That this is needed, desperately needed, is indicated by the incredible uptake of Bootstrap. I use it in all the server software I'm working on. And it shows through in the templating language I'm developing, so everyone who uses it will find it's "just there" and works, any time you want to do a Bootstrap technique. Nothing to do, no libraries to include. It's as if it were part of the hardware. Same approach that Apple took with the Mac OS in 1984.
+
+        div &nbsp;
+        div(class='text-center') ——— address, abbr (hint) ———
+        div &nbsp;
+
+        address
+            strong O'Reilly Media, Inc.
+            br
+            | 1005 Gravenstein HWY North
+            br
+            | Sebastopol, CA 95472
+            br
+            abbr(title="Phone") P:
+                a(href="tel:+17078277000")  (707) 827-7000
+        address
+            strong Jake Spurlock
+            br
+            a(href="mailto:flast@oreilly.com") flast@oreilly.com
+
+        div &nbsp;
+        div(class='text-center') ——— Emphasis (text-*) ———
+        div &nbsp;
+
+        p(class="muted") This content is muted
+        p(lass="text-warning") This content carries a warning class
+        p(class="text-danger") This content carries an error class
+        p(class="text-info") This content carries an info class
+        p(class="text-success") This content carries a success class
+        p This content has
+            em  emphasis
+            | , and can be
+            strong  bold
+
+        div &nbsp;
+        div(class='text-center') ——— unordered, ordered, definition lists (ul, ol, dl[dt,dd]) ———
+        div &nbsp;
+
+        ul
+            li Backpacking in Yosemite
+            li Hiking in Arches
+                ul
+                    li Delicate Arch
+                    li Park Avenue
+                    li Hiking in Arches
+                        ul
+                            li Delicate Arch
+                            li Park Avenue
+                            li Hiking in Arches
+                                ul
+                                    li Delicate Arch
+                                    li Park Avenue
+                                    li Biking the Flintstones Trail
+                            li Biking the Flintstones Trail
+                    li Biking the Flintstones Trail
+            li Biking the Flintstones Trail
+
+        ol
+            li Backpacking in Yosemite
+            li Hiking in Arches
+                ol
+                    li Delicate Arch
+                    li Park Avenue
+                    li Hiking in Arches
+                        ol
+                            li Delicate Arch
+                            li Park Avenue
+                            li Hiking in Arches
+                                ol
+                                    li Delicate Arch
+                                    li Park Avenue
+                                    li Biking the Flintstones Trail
+                            li Biking the Flintstones Trail
+                    li Biking the Flintstones Trail
+            li Biking the Flintstones Trail
+
+        dl
+            dt Backpacking in Yosemite1
+            dd Hiking in Arches2
+            dt Delicate Arch3
+            dd Park Avenue4
+
+        dl(class='dl-horizontal')
+            dt Tooo looong str: Backpacking in Yosemite1
+            dd Hiking in Arches2
+            dt Delicate Arch3
+            dd Park Avenue4
+
+        div &nbsp;
+        div(class='text-center') ——— code and pre ———
+        div &nbsp;
+
+        p Instead of always using divs, in HTML5, you can use new elements like&nbsp;
+            code &lt;section&gt;
+            | ,&nbsp;
+            code &lt;header&gt;
+            | , and&nbsp;
+            code &lt;footer&gt;
+            | . The html should look something like this:</p>
+        pre
+            | &lt;article&gt;
+            |   &lt;h1&gt;Article Heading&lt;/h1&gt;
+            | &lt;/article&gt;|
+
+        div &nbsp;
+        div(class='text-center') ——— Tables ———
+        div &nbsp;
+
+        table(class="table")
+            caption Caption: simple .table
+            thead
+                tr
+                    th THead th1
+                    th THead th2
+                    th THead th3
+            tbody
+                tr
+                    td TBody td1
+                    td TBody td2
+                    td TBody td3
+                tr
+                    td TBody td1
+                    td TBody td2
+                    td TBody td3
+                tr
+                    td TBody td1
+                    td TBody td2
+                    td TBody td3
+
+        table(class="table table-bordered")
+            caption Caption: .table + .table-bordered
+            thead
+                tr
+                    th THead th1
+                    th THead th2
+                    th THead th3
+            tbody
+                tr
+                    td TBody td1
+                    td TBody td2
+                    td TBody td3
+                tr
+                    td TBody td1
+                    td TBody td2
+                    td TBody td3
+                tr
+                    td TBody td1
+                    td TBody td2
+                    td TBody td3
+
+        table(class="table table-striped")
+            caption Caption: .table + .table-striped
+            thead
+                tr
+                    th THead th1
+                    th THead th2
+                    th THead th3
+            tbody
+                tr
+                    td TBody td1
+                    td TBody td2
+                    td TBody td3
+                tr
+                    td TBody td1
+                    td TBody td2
+                    td TBody td3
+                tr
+                    td TBody td1
+                    td TBody td2
+                    td TBody td3
+
+        table(class="table table-hover")
+            caption Caption: .table + .table-hover
+            thead
+                tr
+                    th THead th1
+                    th THead th2
+                    th THead th3
+            tbody
+                tr
+                    td TBody td1
+                    td TBody td2
+                    td TBody td3
+                tr
+                    td TBody td1
+                    td TBody td2
+                    td TBody td3
+                tr
+                    td TBody td1
+                    td TBody td2
+                    td TBody td3
+
+        table(class="table table-condensed")
+            caption Caption: .table + .table-condensed
+            thead
+                tr
+                    th THead th1
+                    th THead th2
+                    th THead th3
+            tbody
+                tr
+                    td TBody td1
+                    td TBody td2
+                    td TBody td3
+                tr
+                    td TBody td1
+                    td TBody td2
+                    td TBody td3
+                tr
+                    td TBody td1
+                    td TBody td2
+                    td TBody td3
+
+        table(class="table")
+            caption Caption: simple .table + success, danger, warning and info
+            thead
+                tr(class='success')
+                    th THead th1
+                    th THead th2
+                    th THead th3
+            tbody
+                tr(class='danger')
+                    td TBody td1
+                    td TBody td2
+                    td TBody td3
+                tr(class='warning')
+                    td TBody td1
+                    td TBody td2
+                    td TBody td3
+                tr
+                    td TBody td1
+                    td(class='info') Clear tr
+                    td TBody td3
+
+
+        div &nbsp;
+        div(class='text-center') ——— Forms (all in containers) ———
+        div &nbsp;
+
+        div(class='container')
+            form
+                fieldset
+                    legend Legend
+                    label(for="name") Label name
+                    br
+                    input(type="text", id="name", placeholder="Type something…")
+                    span(class="help-block") Example block-level help text here.
+                    label(class="checkbox", for="checkbox")
+                        input(type="checkbox", id="checkbox")
+                        | Check me out
+                    button(type="submit", class="btn") Submit
+
+        div(class='container')
+            form(class="form-group")
+                legend type "search"
+                input(type="search", class="input-sm")
+                button(type="submit", class="btn") Search
+
+        div(class='container')
+            form(class="form-horizontal")
+                legend form-horizontal
+                div(class="control-group")
+                    label(class="control-label", for="inputEmail") Email
+                    div(class="controls")
+                        input(type="text", id="inputEmail", placeholder="Email")
+                div(class="control-group")
+                    label(class="control-label", for="inputPassword") Password
+                    div(class="controls")
+                        input(type="password", id="inputPassword", placeholder="Password")
+                div(class="control-group")
+                    div(class="controls")
+                        label(class="checkbox")
+                            input(type="checkbox")
+                            | Remember me
+                        button(type="submit", class="btn") Sign in
+
+        div(class='container')
+            form
+                fieldset
+                    legend checkboxes and radio buttons
+                    label(class="checkbox")
+                        input(type="checkbox", value="")
+                        | Option one is this and that—be sure to include why it's great.
+                    label(class="radio")
+                        input(type="radio", name="optionsRadios", id="optionsRadios1", value="option1")
+                        | Option one is this and that—be sure to include why it's great.
+                    label(class="radio")
+                        input(type="radio", name="optionsRadios", id="optionsRadios2", value="option2", checked)
+                        | Option two can be something else, and selecting it will deselect option one
+
+        div(class='container')
+            form
+                fieldset
+                    legend inline checkboxes
+                    label(for="option1", class="checkbox-inline")
+                        input(type="checkbox", id="inlineCheckbox1", value="option1")
+                        | 1
+                    label(for="option2", class="checkbox-inline")
+                        input(type="checkbox", id="inlineCheckbox2", value="option2")
+                        | 2
+                    label(for="option3", class="checkbox-inline")
+                        input(type="checkbox", id="inlineCheckbox3", value="option3")
+                        | 3
+
+        div &nbsp;
+        div(class='text-center') —————————————————————————————
+        div &nbsp;
+
+        div(class='container')
+            form
+                fieldset
+                    legend Selects
+                    select
+                        option 1
+                        option 2
+                        option 3
+                        option 4
+                        option 5
+                    br
+                    br
+                    select(multiple="multiple")
+                        option 1
+                        option 2
+                        option 3
+                        option 4
+                        option 5
+
+        div &nbsp;
+        div(class='text-center') —————————————————————————————
+        div &nbsp;
+
+        div(class='container')
+            form
+                fieldset
+                    legend Extended forms controls
+                    div(class="input-prepend")
+                        span(class="add-on") @
+                        input(class="span2", id="prependedInput", type="text", placeholder="Username")
+                    div(class="input-append")
+                        input(class="span2", id="appendedInput", type="text")
+                        span(class="input-group-addon") .00
+
+        div &nbsp;
+        div(class='text-center') —————————————————————————————
+        div &nbsp;
+
+        div(class='container')
+            div(class="btn-group-xs")
+                button(type="button", class="btn btn-default dropdown-toggle", data-toggle="dropdown", aria-expanded="false") Action
+                    span(class="caret")
+                ul(class="dropdown-menu", role="menu")
+                    li
+                        a(href="#") Action
+                    li
+                        a(href="#") Another action
+                    li
+                        a(href="#") Something else here
+                    li(class="divider")
+                    li
+                        a(href="#") Separated link
+
+
+        div &nbsp;
+        div(class='text-center') —————————————————————————————
+        div &nbsp;
+
+        div &nbsp;
+        div(class='text-center') —————————————————————————————
+        div &nbsp;
+
+        div(class='container')
+            div(class='row')
+                div(class='col-xs-9')
+                    input(type='number', class='form-control ', placeholder='your id')
+                div(class='col-xs-3')
+                    a(class='btn btn-success center-block') Search
+
+        div(class='container')
+            div(class='row')
+                div(class='col-xs-6') Hi
+                div(class='col-xs-6') there!
+
+        div(class='container')
+            div(class='row')
+                h1
+                    span Watch these links
+                    br
+                    a(href='http://getbootstrap.com/components/') http://getbootstrap.com/components/
+                    br
+                    a(href='http://getbootstrap.com/javascript/') http://getbootstrap.com/javascript/
+                    br
+                    span And all these examples with Angular
+                    br
+                    a(href='http://angular-ui.github.io/bootstrap/') http://angular-ui.github.io/bootstrap/
