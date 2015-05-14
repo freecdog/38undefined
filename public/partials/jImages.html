@@ -1,12 +1,10 @@
-<div>
-    <ul>
-        <li ng-repeat="elem in jElements | filter: nameSnippetFilter | orderBy: jOrderProp">
-            <span>{{elem.name}}</span>
-            <a href="#/elements/{{elem.id}}">{{elem.id}}</a>
-            <img ng-src="{{elem.image}}" style="-webkit-filter: invert(100%);">
-            <span>:</span>
-            <br>
-            <span>{{elem.snippet}} {{elem.date}}</span>
-        </li>
-    </ul>
+<div class="container-fluid">
+    <div style="position: fixed; top: 0px; right: 0px" ng-click="refreshIt()">
+        <a href="#" class="btn btn-default btn-lg" >
+            <span class="glyphicon glyphicon-refresh"></span>
+        </a>
+    </div>
+    <div class="row" ng-repeat="elem in jElements.files">
+        <img class="imgSpecial" ng-src="/images/{{elem}}">
+    </div>
 </div>

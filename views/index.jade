@@ -1,5 +1,26 @@
-extends layout
+//
+   Created by yarvyk on 14.05.2015.
 
-block content
-  h1= title
-  p Welcome to #{title}
+doctype html
+html(ng-app="jApp")
+    head
+        title= title
+        link(rel='stylesheet', href='/stylesheets/style.css')
+        meta(name="viewport", content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=yes")
+
+        script(src="/javascripts/angular.js")
+        script(src="/javascripts/angular-route/angular-route.js")
+
+        script(src="/javascripts/jApp.js")
+        script(src="/javascripts/jControllers.js")
+
+        link(rel='stylesheet', href='/bootstrap/css/bootstrap.css')
+        link(rel='stylesheet', href='/bootstrap/css/bootstrap-theme.css')
+        script(src='/javascripts/ui-bootstrap-tpls-0.12.0.js')
+
+    body(ng-controller="jImagesController")
+        div(class="container text-center")
+            h1= title
+
+        div(ng-view)
+                       

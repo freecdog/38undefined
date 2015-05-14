@@ -1,7 +1,23 @@
 body {
-  padding: 50px;
+  padding: 0px;
+  margin: 0px;
+  border: 0px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  background-color: #1d0a1b;
+  color: #fef4bb;
+}
+body::-webkit-scrollbar {
+  height: 0;
+  width: 0;
 }
 a {
-  color: #00b7ff;
+  color: #aa2394;
+}
+.imgHolder {
+  width: 100%;
+}
+.imgSpecial {
+  display: block;
+  margin: 0 auto;
+  width: 100%;
 }
