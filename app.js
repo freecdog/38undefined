@@ -6,6 +6,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
 var routes = require('./routes/index');
+var predictionGame = require('./routes/predictionGame');
 var api = require('./routes/api');
 
 var app = express();
@@ -24,6 +25,7 @@ app.use(require('stylus').middleware(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
+app.use('/pg', predictionGame);
 app.use('/api', api);
 app.use('/bootstrap', function(req, res){
     res.render('bootstrapView1', {});

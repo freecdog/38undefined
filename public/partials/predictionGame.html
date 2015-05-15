@@ -1,0 +1,75 @@
+<div class="container-fluid">
+    <!--
+    <div class="row">
+        <div class='col-xs-1 text-center'>
+            <div ng-repeat="elem in checkboxes1 track by $index">{{elem}}</div>
+            <div ng-repeat="elem in checkboxes2 track by $index">{{elem}}</div>
+        </div>
+        <div class="col-xs-2 text-center" ng-repeat="elem in images1">
+            <div class="row">
+                <label for="cb1{{$index}}">
+                    <img class="imgSpecial" ng-src="/images/{{elem}}">
+                </label>
+            </div>
+            <div class="row">
+                <input type="checkbox" id="cb1{{$index}}" class="hiddenCheckbox" ng-model="checkboxes1[$index]">
+            </div>
+        </div>
+        <div class='col-xs-1 text-center'></div>
+    </div>
+    <div class="row">&nbsp;</div>
+    <div class="row">
+        <div class='col-xs-1 text-center'></div>
+        <div class="col-sm-2 text-center" ng-repeat="elem in images2">
+            <div class="row">
+                <label for="cb2{{$index}}">
+                    <img class="imgSpecial" ng-src="/images/{{elem}}">
+                </label>
+            </div>
+            <div class="row">
+                <input type="checkbox" id="cb2{{$index}}" class="hiddenCheckbox" ng-model="checkboxes2[$index]">
+            </div>
+        </div>
+        <div class='col-xs-1 text-center'></div>
+    </div>
+    -->
+
+    <!--
+    <div class="row">
+        <div class='col-xs-1 text-center'>
+            <div ng-repeat="elem in checkboxes track by $index">{{elem}}</div>
+        </div>
+        <div class='col-xs-10 text-center'>
+            <div class="row">
+                <div class="col-lg-3 text-center" ng-repeat="elem in images">
+                    <div class="row">
+                        <label for="cb{{$index}}">
+                            <img class="img-responsive" ng-src="/images/{{elem}}">
+                        </label>
+                    </div>
+                    <div class="row">
+                        <input type="checkbox" id="cb{{$index}}" class="hiddenCheckbox" ng-model="checkboxes[$index]">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class='col-xs-1 text-center'></div>
+    </div>
+    -->
+
+    <div class="row" ng-repeat="elementsGroup in imagesForView">
+        <div class="col-xs-3" ng-repeat="elem in elementsGroup">
+            <div class="row">
+                <label for="cb{{$parent.$index}}">
+                    <img class="img-responsive" ng-src="/images/banksy/{{elem}}">
+                </label>
+            </div>
+            <div class="row">
+                <input type="checkbox" id="cb{{$index}}" class="hiddenCheckbox" ng-model="checkboxes[$index]">
+            </div>
+        </div>
+    </div>
+    <h1>Indexes problems is here!</h1>
+    <div ng-repeat="elem in checkboxes track by $index">{{elem}}</div>
+
+</div>

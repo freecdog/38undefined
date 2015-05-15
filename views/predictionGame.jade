@@ -1,8 +1,8 @@
 //
-   Created by jaric on 14.05.2015.
+   Created by jaric on 15.05.2015.
 
 doctype html
-html(ng-app="jApp")
+html(ng-app="jPGApp")
     head
         title= title
         link(rel='stylesheet', href='/stylesheets/style.css')
@@ -11,16 +11,15 @@ html(ng-app="jApp")
         script(src="/javascripts/angular.js")
         script(src="/javascripts/angular-route/angular-route.js")
 
-        script(src="/javascripts/jApp.js")
-        script(src="/javascripts/jControllers.js")
+        script(src="/javascripts/jPGApp.js")
+        script(src="/javascripts/jPGControllers.js")
 
         link(rel='stylesheet', href='/bootstrap/css/bootstrap.css')
         link(rel='stylesheet', href='/bootstrap/css/bootstrap-theme.css')
         script(src='/javascripts/ui-bootstrap-tpls-0.12.0.js')
 
-    body(ng-controller="jImagesController")
+    body(ng-controller="jPredictionGameController")
         div(class="container text-center")
             h1= title
 
         div(ng-view)
-                       
