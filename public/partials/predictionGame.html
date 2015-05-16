@@ -57,11 +57,53 @@
     </div>
     -->
 
+    <div class="row">
+        <div class="col-xs-2">
+            <h3>TODO:</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-2">
+            <h3>back-end:</h3>
+        </div>
+        <div class="col-xs-10">
+            <div class="row">
+                <h3>Every action comes with /api/images request</h3>
+            </div>
+            <div class="row">
+                <h3>/stopFindGame leads to error</h3>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-2">
+            <h3>front-end:</h3>
+        </div>
+        <div class="col-xs-10">
+            <div class="row">
+                <h3>Indexes are incorrect (row dependent)!</h3>
+                Checkboxes' statuses: <span ng-repeat="elem in checkboxes track by $index">{{elem}} </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" ng-click="connect()">
+        <a href="#" class="btn btn-default btn-lg" >connect</a>
+    </div>
+    <div class="row" ng-click="findGame()">
+        <a href="#" class="btn btn-default btn-lg" >findGame</a>
+    </div>
+    <div class="row" ng-click="stopFindGame()">
+        <a href="#" class="btn btn-default btn-lg" >stopFindGame</a>
+    </div>
+
+
     <div class="row" ng-repeat="elementsGroup in imagesForView">
         <div class="col-xs-3" ng-repeat="elem in elementsGroup">
             <div class="row">
                 <label for="cb{{$parent.$index}}">
                     <img class="img-responsive" ng-src="/images/banksy/{{elem}}">
+                    {{$parent.$index}}, {{$index}}
                 </label>
             </div>
             <div class="row">
@@ -69,7 +111,6 @@
             </div>
         </div>
     </div>
-    <h1>Indexes problems is here!</h1>
-    <div ng-repeat="elem in checkboxes track by $index">{{elem}}</div>
+
 
 </div>

@@ -10,6 +10,20 @@
 
     var jPGControllers = angular.module('jPGControllers', []);
 
+    function isNumber(n) {
+        return !isNaN(parseFloat(n)) && isFinite(n);
+    }
+    function getSearchPlayersCount(){
+        var defaultCount = '2';
+        var localStorage = window.localStorage;
+        if (!localStorage) return defaultCount;
+        var searchPlayersCount = localStorage.getItem("searchPlayersCount");
+        if (isNumber(searchPlayersCount)) {
+            //searchPlayersCount = Math.floor(parseFloat(searchPlayersCount));
+            return searchPlayersCount.toString();   // due to next usage as a string
+        } else return defaultCount;
+    }
+
     jPGControllers.controller('jPredictionGameController', ['$scope', '$http', function($scope, $http) {
 
         init();
@@ -20,6 +34,7 @@
             $scope.checkboxes = [false, false, false, false, false, false, false, false, false, false];
             $scope.checkboxes1 = [false, false, false, false, false];
             $scope.checkboxes2 = [false, false, false, false, false];
+            console.warn('initialized, probably a lot of times =/');
         }
 
         function getImages(){
@@ -60,8 +75,46 @@
         }
 
         this.refreshIt = function(){
+            console.log('trying to refresh');
             getImages();
         };
+
+
+
+        $scope.connect = function(){
+            $http.get('/api/connectPlayer').success(function(data){
+                console.log("data fetched, from connect", data);
+                $scope.sessionID = data.sessionID;
+
+                // !!!auto
+                //$scope.findGame();
+            });
+        };
+
+        $scope.findGame = function(){
+            var searchPlayersCount = getSearchPlayersCount();
+            $http.get('/api/findGame' + '/' + searchPlayersCount).success(function(data){
+                console.log("data fetched, from find:", data);
+                $scope.game = data;
+
+                if ($scope.game.playersOnline == null) {
+                    if ($scope.game.myPlayerIndex == undefined) $scope.game.myPlayerIndex = $scope.game.playerIndex;
+
+                    // !!!auto
+                    //$scope.getDice();
+                } else {
+                    console.log("game wasn't found yet");
+                }
+            });
+        };
+        $scope.stopFindGame = function(){
+            $http.get('/api/stopFindGame').success(function(data){
+                console.log("stop find a game", data);
+            });
+        };
+
+
+
     }]);
 
 })(angular);
