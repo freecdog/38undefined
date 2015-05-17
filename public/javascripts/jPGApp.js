@@ -9,20 +9,20 @@
     console.log("angular is here:", angular);
 
     var jPGApp = angular.module('jPGApp', [
-        'ngRoute',
+        //'ngRoute',
         'jPGControllers'
     ]);
     console.log("jPGApp", jPGApp);
 
-    jPGApp.config(['$routeProvider',function($routeProvider) {
-        $routeProvider.
-            when('/', {
-                templateUrl: 'partials/predictionGame.html',
-                controller: 'jPredictionGameController'
-            }).
-            otherwise({
-                redirectTo: '/'
-            });
-    }]);
+    //jPGApp.config(['$routeProvider',function($routeProvider) {
+    //    $routeProvider.
+    //        when('/', {
+    //            templateUrl: 'partials/predictionGame.html',
+    //            controller: 'jPredictionGameController'
+    //        }).
+    //        otherwise({
+    //            redirectTo: '/'
+    //        });
+    //}]);
 
 })(angular);

@@ -5,6 +5,8 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
+var _ = require('underscore');
+var fs = require('fs');
 
 var routes = require('./routes/index');
 var predictionGame = require('./routes/predictionGame');
@@ -51,7 +53,10 @@ var gamesCounter = 0;
 var games = {};
 var gamesInProgress = {};
 
-
+function generatePlayerName(){
+    return "player" + (10000 * Math.random()).toFixed(0);
+}
+// TODO probably cookie can store game(s) where it involved
 function removeExpiredConnections(){
     var curTime = new Date();
 
@@ -99,8 +104,19 @@ function createPlayer(){
     connectedCookie.searchPlayersCount = 2; // default value
     return connectedCookie;
 }
-function getIpFromRequest(req){
-    return req.connection.remoteAddress;
+function generateImageList(){
+    var filenames = fs.readdirSync('./public/images/banksy');
+    if (!filenames){
+        filenames = [];
+        console.log("Looks like there are no files at all, or wrong directory.");
+    }
+    // use only jpg and png files (folders non-acceptable =) )
+    filenames = _.filter(filenames, function(filename){
+        return filename.toLowerCase().indexOf('jpg') != -1 || filename.toLowerCase().indexOf('png') != -1;
+    });
+    filenames = _.sample(filenames, 10);
+
+    return filenames;
 }
 // connectedCookie status:
 // 1 — connected
@@ -112,21 +128,21 @@ function apiFindGame(req, res, connectedCookie, searchPlayersCount){
         connectedCookie.status = 2;
     connectedCookie.searchPlayersCount = searchPlayersCount;
 
-    console.log(req._remoteAddress + ", searching for game, onliners: " + Object.keys(connectedCookies).length.toString());
+    console.log(req._remoteAddress + ", searching for game, online: " + Object.keys(connectedCookies).length.toString());
 
     prepareGame(searchPlayersCount);
     var game = findGameById(req.sessionID);
     console.log("game:", game ? game._id : null);//, JSON.stringify(game));
     if (game == null) {
-        game = collectOnlineStatistics(searchPlayersCount);
+        var onlineStatistics = collectOnlineStatistics(searchPlayersCount);
 
-        res.send(game);
+        res.send(onlineStatistics);
     } else {
         var playerIndex = getPlayerIndexInGame(game, req.sessionID);
         //game.playerIndex = playerIndex;
         var gameWithPlayerIndex = {playerIndex: playerIndex};
         _.extend(gameWithPlayerIndex, game);
-        //console.log("game to send (findGame):", gameWithPlayerIndex);
+        console.log("game to send (findGame):", gameWithPlayerIndex);
 
         res.send(gameWithPlayerIndex);
     }
@@ -160,11 +176,14 @@ function prepareGame(numberOfPlayers) {
         game.status = 20;
         game.startTime = new Date();
 
+        game.images = generateImageList();
+
         for (var i = 0; i < len; i++) {
-            if (i==0) {
-                //game.settings = connectedCookies[wannaPlayers[i]].settings;
-                //game.boxes = connectedCookies[wannaPlayers[i]].boxes;
-            }
+            // Taking settings of first player
+            //if (i==0) {
+            //    game.settings = connectedCookies[wannaPlayers[i]].settings;
+            //    game.boxes = connectedCookies[wannaPlayers[i]].boxes;
+            //}
 
             var userSessionId = wannaPlayers[i];
             game.players.push(userSessionId);
@@ -255,7 +274,6 @@ app.connectedCookies = connectedCookies;
 
 app.removeExpiredConnections = removeExpiredConnections;
 app.createPlayer = createPlayer;
-app.getIpFromRequest = getIpFromRequest;
 app.apiFindGame = apiFindGame;
 app.prepareGame = prepareGame;
 app.findGameById = findGameById;

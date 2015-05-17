@@ -46,6 +46,7 @@ router.get("/connectPlayer", function(req, res){
 
     var connectedCookie = connectedCookies[req.sessionID];
     if (connectedCookie !== undefined){
+        console.log('Already have this cookie, id:', req.sessionID);
         connectedCookie.time = new Date();
         if (connectedCookie.status === undefined) {
             //connectedCookie.status = 2;
@@ -53,11 +54,12 @@ router.get("/connectPlayer", function(req, res){
         }
         //if (connectedCookie.status == 80) connectedCookie.status = 2;
     } else {
+        console.log('trying to createPlayer, id:', req.sessionID);
         connectedCookie = req.app.createPlayer();
         connectedCookies[req.sessionID] = connectedCookie;
         connectedCookie.status = 1; // connected
     }
-    console.log(req._remoteAddress + ", players connected, onliners: " + Object.keys(connectedCookies).length.toString());
+    console.log(req._remoteAddress + ", players connected, online: " + Object.keys(connectedCookies).length.toString());
     var data = req.app.collectOnlineStatistics();
     data.sessionID = req.sessionID;
 
@@ -88,37 +90,25 @@ router.get("/findGame", function(req, res){
         res.send();
     }
 });
-router.get("/findGame/:searchPlayersCount", function(req, res){
-    var connectedCookies = req.app.connectedCookies;
-
-    var connectedCookie = connectedCookies[req.sessionID];
-    if (connectedCookie !== undefined){
-        var searchPlayersCount = req.params.searchPlayersCount[0];
-        if (searchPlayersCount == '1' || searchPlayersCount == '2' || searchPlayersCount == '3' || searchPlayersCount == '4') {
-            searchPlayersCount = parseInt(searchPlayersCount);
-            req.app.apiFindGame(req, res, connectedCookie, searchPlayersCount);
-        } else {
-            res.send();
-        }
-    } else {
-        res.send();
-    }
-});
 router.get("/stopFindGame", function(req, res){
     var connectedCookies = req.app.connectedCookies;
 
     var connectedCookie = connectedCookies[req.sessionID];
     if (connectedCookie !== undefined) {
+        console.log('here in stopFindGame');
         connectedCookie.time = new Date();
         if (connectedCookie.status == 2)
             connectedCookie.status = 1;
-        res.send("1");
 
         req.app.removeExpiredConnections();
 
-        console.log(app.req.getIpFromRequest(req) + ", stop find game, onliners: " + Object.keys(connectedCookies).length.toString());
+        console.log('and here in stopFindGame');
+        console.log(req.connection.remoteAddress + ", stop find game, online: " + Object.keys(connectedCookies).length.toString());
+
+        res.send("1");
+        console.log('and may be here in stopFindGame');
     } else {
-        res.send();
+        res.send("-1");
     }
 });
 

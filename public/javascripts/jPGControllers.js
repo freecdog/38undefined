@@ -29,14 +29,32 @@
         init();
 
         function init(){
-            getImages();
+            //getImages();
 
             $scope.checkboxes = [false, false, false, false, false, false, false, false, false, false];
             $scope.checkboxes1 = [false, false, false, false, false];
             $scope.checkboxes2 = [false, false, false, false, false];
-            console.warn('initialized, probably a lot of times =/');
         }
 
+        function applyImagesForView(imageList){
+            var appliedImages = [];
+            for (var i = 0, counter = 0; i < 4; i++){
+                var recArray = [];
+                for (var j = 0; j < i+1; j++){
+                    recArray.push(imageList[counter]);
+                    counter++;
+                }
+                appliedImages.push(recArray);
+            }
+            // reverse array
+            for (var i = 0, length2 = appliedImages.length / 2; i < length2; i++){
+                var recSwapArray = [];
+                recSwapArray = appliedImages[i];
+                appliedImages[i] = appliedImages[appliedImages.length - i - 1];
+                appliedImages[appliedImages.length - i - 1] = recSwapArray;
+            }
+            return appliedImages;
+        }
         function getImages(){
             $scope.images1 = [];
             $scope.images2 = [];
@@ -53,24 +71,8 @@
                     $scope.images.push(data.images2[i]);
                 }
 
-                $scope.imagesForView = [];
-                for (var i = 0, counter = 0; i < 4; i++){
-                    var recArray = [];
-                    for (var j = 0; j < i+1; j++){
-                        recArray.push($scope.images[counter]);
-                        counter++;
-                    }
-                    $scope.imagesForView.push(recArray);
-                }
-                // reverse array
-                for (var i = 0, length2 = $scope.imagesForView.length / 2; i < length2; i++){
-                    var recSwapArray = [];
-                    recSwapArray = $scope.imagesForView[i];
-                    $scope.imagesForView[i] = $scope.imagesForView[$scope.imagesForView.length - i - 1];
-                    $scope.imagesForView[$scope.imagesForView.length - i - 1] = recSwapArray;
-                }
+                $scope.imagesForView = applyImagesForView($scope.images);
                 console.log($scope.imagesForView);
-
             });
         }
 
@@ -90,12 +92,22 @@
                 //$scope.findGame();
             });
         };
+        $scope.disconnect = function(){
+            $http.get('/api/disconnectPlayer').success(function(data){
+                console.log("data fetched, from disconnect", data);
+            });
+        };
 
         $scope.findGame = function(){
-            var searchPlayersCount = getSearchPlayersCount();
-            $http.get('/api/findGame' + '/' + searchPlayersCount).success(function(data){
+            $http.get('/api/findGame').success(function(data){
+                if (!data || typeof(data) !== "object") {
+                    console.warn("game data is empty, unfortunately. Data:", data);
+                    return;
+                }
                 console.log("data fetched, from find:", data);
                 $scope.game = data;
+                $scope.imagesForView = applyImagesForView($scope.game.images);
+
 
                 if ($scope.game.playersOnline == null) {
                     if ($scope.game.myPlayerIndex == undefined) $scope.game.myPlayerIndex = $scope.game.playerIndex;
@@ -108,9 +120,13 @@
             });
         };
         $scope.stopFindGame = function(){
-            $http.get('/api/stopFindGame').success(function(data){
-                console.log("stop find a game", data);
-            });
+            $http.get('/api/stopFindGame')
+                .success(function(data){
+                    console.log("stop find a game", data);
+                })
+                .error(function(data, a, b, c){
+                    console.log("error is ", data, a, b, c);
+                });
         };
 
 

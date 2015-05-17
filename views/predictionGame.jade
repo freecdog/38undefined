@@ -5,21 +5,96 @@ doctype html
 html(ng-app="jPGApp")
     head
         title= title
-        link(rel='stylesheet', href='/stylesheets/style.css')
-        meta(name="viewport", content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=yes")
+        link(rel='stylesheet' href='/stylesheets/style.css')
+        meta(name="viewport" content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=yes")
 
         script(src="/javascripts/angular.js")
-        script(src="/javascripts/angular-route/angular-route.js")
+        //-script(src="/javascripts/angular-route/angular-route.js")
 
         script(src="/javascripts/jPGApp.js")
         script(src="/javascripts/jPGControllers.js")
 
-        link(rel='stylesheet', href='/bootstrap/css/bootstrap.css')
-        link(rel='stylesheet', href='/bootstrap/css/bootstrap-theme.css')
+        link(rel='stylesheet' href='/bootstrap/css/bootstrap.css')
+        link(rel='stylesheet' href='/bootstrap/css/bootstrap-theme.css')
         script(src='/javascripts/ui-bootstrap-tpls-0.12.0.js')
 
     body(ng-controller="jPredictionGameController")
         div(class="container text-center")
             h1= title
 
-        div(ng-view)
+        div(class="container-fluid")
+
+
+
+            div(class="row")
+                div(class="col-xs-6 col-lg-2")
+                    a(class="btn btn-default btn-block btn-lg" ng-click="connect()") connect
+            div(class="row")
+                div(class="col-xs-6 col-lg-2")
+                    a(class="btn btn-default btn-block btn-lg" ng-click="disconnect()") disconnect
+            div(class="row")
+                div(class="col-xs-6 col-lg-2")
+                    a(class="btn btn-default btn-block btn-lg" ng-click="findGame()") findGame
+            div(class="row")
+                div(class="col-xs-6 col-lg-2")
+                    a( class="btn btn-default btn-block btn-lg" ng-click="stopFindGame()") stopFindGame
+
+            div(class="row" ng-repeat="elementsGroup in imagesForView")
+                div(class="col-xs-3" ng-repeat="elem in elementsGroup")
+                    div(class="row")
+                        label(for="cb{{$parent.$index == 0 ? $index : $parent.$index == 1 ? 4 + $index : $parent.$index == 2 ? 7 + $index : 9}}")
+                            img(src="/images/icons/1431883984_checkmark-24-64.png" style="position:absolute; top: 0px; left: 0px;" ng-show="checkboxes[$parent.$index == 0 ? $index : $parent.$index == 1 ? 4 + $index : $parent.$index == 2 ? 7 + $index : 9]")
+                            img(class="img-responsive" ng-src="/images/banksy/{{elem}}")
+                            //-| {{$parent.$index}}, {{$index}}
+                            //-| : {{$parent.$index == 0 ? $index : $parent.$index == 1 ? 4 + $index : $parent.$index == 2 ? 7 + $index : 9}}
+                    div(class="row")
+                        input(type="checkbox" id="cb{{$parent.$index == 0 ? $index : $parent.$index == 1 ? 4 + $index : $parent.$index == 2 ? 7 + $index : 9}}" class="hiddenCheckbox" ng-model="checkboxes[$parent.$index == 0 ? $index : $parent.$index == 1 ? 4 + $index : $parent.$index == 2 ? 7 + $index : 9]")
+
+
+            //- TO-DO TO-DO TO-DO TO-DO TO-DO TO-DO TO-DO TO-DO TO-DO TO-DO TO-DO TO-DO TO-DO TO-DO TO-DO TO-DO
+            div(class="row")
+                div(class="col-xs-2")
+                    h3 TODO:
+            //- BACK END BACK END BACK END BACK END BACK END BACK END BACK END BACK END BACK END BACK END BACK END
+            div(class="row")
+                div(class="col-xs-1")
+                    h3 back-end:
+                div(class="col-xs-11")
+                    div(class="row")
+                        div(class="col-xs-1 text-center")
+                            h3(class="glyphicon glyphicon-remove")
+                        div(class="col-xs-11")
+                            h3 It is unplayable at all.
+                            span this message will be here until it will be playable =)
+                    div(class="row")
+                        div(class="col-xs-1 text-center")
+                            h3(class="glyphicon glyphicon-ok")
+                        div(class="col-xs-11")
+                            h3 Every action comes with /api/images request
+                            span solved by removing routing opportunity. It looks like bad idea, but it works. =|
+                    div(class="row")
+                        div(class="col-xs-1 text-center")
+                            h3(class="glyphicon glyphicon-ok")
+                        div(class="col-xs-11")
+                            h3 /stopFindGame leads to error
+                            span somehow processing req (req.connection.remoteAddress) in app.js leaded to error. =|
+            //- FRONT END FRONT END FRONT END FRONT END FRONT END FRONT END FRONT END FRONT END FRONT END FRONT END
+            div(class="row")
+                div(class="col-xs-1")
+                    h3 front-end:
+                div(class="col-xs-11")
+                    div(class="row")
+                        div(class="col-xs-1 text-center")
+                            h3(class="glyphicon glyphicon-ok")
+                        div(class="col-xs-11")
+                            div(class="row")
+                                h3 Indexes are incorrect (row dependent)!
+                            div(class="row")
+                                | Checkboxes' statuses:
+                            div(class="row")
+                                span(class="col-xs-1" ng-repeat="elem in checkboxes track by $index") {{elem}}&nbsp;
+                    div(class="row")
+                        div(class="col-xs-1 text-center")
+                            h3(class="glyphicon glyphicon-ok")
+                        div(class="col-xs-11")
+                            h3 Highlight checked element
