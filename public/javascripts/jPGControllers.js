@@ -37,11 +37,18 @@
         }
 
         function applyImagesForView(imageList){
+            if (!imageList) {
+                console.warn('Looks like imageList is empty. Here it is:', imageList);
+                return [];
+            }
             var appliedImages = [];
             for (var i = 0, counter = 0; i < 4; i++){
                 var recArray = [];
                 for (var j = 0; j < i+1; j++){
-                    recArray.push(imageList[counter]);
+                    recArray.push({
+                        index: i == 0 ? j : i == 1 ? 1 + j : i == 2 ? 3 + j : 6 + j,
+                        name: imageList[counter]
+                    });
                     counter++;
                 }
                 appliedImages.push(recArray);
@@ -132,5 +139,16 @@
 
 
     }]);
+
+    jPGControllers.controller('TabController', function(){
+        this.curTab = 0;
+
+        this.setTab = function(tabIndex){
+            this.curTab = tabIndex;
+        };
+        this.isSet = function(tabIndex){
+            return this.curTab === tabIndex;
+        };
+    });
 
 })(angular);
