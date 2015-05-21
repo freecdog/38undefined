@@ -67,7 +67,7 @@ function removeExpiredConnections(){
         //if (connectedCookies.hasOwnProperty(key)) {
         if (connectedCookies[key] !== undefined) {
             //console.log ( (curTime - connectedCookies[key]).toString() );
-            if (Math.abs(curTime - connectedCookies[key].time) > 600000) {   // 10 min
+            if (Math.abs(curTime - connectedCookies[key].time) > 60000) {   // initially 10 min, now 1 min
 
                 for (var gInd in games) {
                     //if (games.hasOwnProperty(gInd)){
@@ -154,9 +154,9 @@ function prepareGame(numberOfPlayers) {
 
     for (var key in connectedCookies) {
         if (connectedCookies[key] !== undefined) {
-            // if status "searching"
             var player = connectedCookies[key];
             player.id = key;
+            // if status "searching"
             if (player.status == 2 && player.searchPlayersCount == numberOfPlayers) {
                 wannaPlayers.push(key);
             }
@@ -179,7 +179,7 @@ function prepareGame(numberOfPlayers) {
 
         game.images = generateImageList();
 
-        for (var i = 0; i < wannaPlayersLength; i++) {
+        for (var i = 0; i < numberOfPlayers; i++) {
             // Taking settings of first player
             //if (i==0) {
             //    game.settings = connectedCookies[wannaPlayers[i]].settings;
@@ -298,6 +298,7 @@ function collectOnlineStatistics(searchPlayersCount){
 // Apply to Express 4
 // connect with api.js
 app.connectedCookies = connectedCookies;
+app.games = games;
 
 app.removeExpiredConnections = removeExpiredConnections;
 app.createPlayer = createPlayer;

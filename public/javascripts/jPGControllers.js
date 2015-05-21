@@ -26,16 +26,22 @@
 
     jPGControllers.controller('jPredictionGameController', ['$scope', '$http', function($scope, $http) {
 
+        function emptyFunction(){}
+        var lastAction = emptyFunction;
+
         init();
 
         function init(){
-            //getImages();
-
             $scope.checkboxes = [false, false, false, false, false, false, false, false, false, false];
-            $scope.checkboxes1 = [false, false, false, false, false];
-            $scope.checkboxes2 = [false, false, false, false, false];
 
-            $scope.game = null;
+            $scope.game = {};
+
+            $scope.loadingPoints = "";
+            $scope.loading = false;
+
+            $scope.restartString = "";
+
+            lastAction = emptyFunction;
         }
 
         function applyImagesForView(imageList, rowsCount){
@@ -65,33 +71,45 @@
             }
             return appliedImages;
         }
-        function getImages(){
-            $scope.images1 = [];
-            $scope.images2 = [];
-            $http.get('/api/images/10').success(function(data){
-                console.log("images fetched", data);
-                $scope.images1 = data.images1;
-                $scope.images2 = data.images2;
+        function calculateResults(){
+            var game = $scope.game;
+            var rounds = game.rounds;
+            var pId = game.myPlayerIndex;
+            var results = [];
 
-                $scope.images = [];
-                for (var i = 0; i < data.images1.length; i++){
-                    $scope.images.push(data.images1[i]);
-                }
-                for (var i = 0; i < data.images2.length; i++){
-                    $scope.images.push(data.images2[i]);
-                }
+            // each player with each other
+            for (var i = 0; i < game.names.length; i++){
+                var result = {
+                    perceptions: []
+                };
+                for (var j = 0; j < game.names.length; j++){
+                    if (i != j) {
+                        var coincidences = 0.0;
+                        var suggestion = rounds[i][1].indices;
+                        var choice = rounds[j][0].indices;
+                        for (var p = 0; p < suggestion.length; p++){
+                            for (var q = 0; q < choice.length; q++){
+                                if (suggestion[p] == choice[q]) {
+                                    coincidences += 1.0;
+                                    break;
+                                }
+                            }
+                        }
+                        result.perceptions.push(coincidences / suggestion.length);
 
-                $scope.imagesForView = applyImagesForView($scope.images, 4);
-                console.log($scope.imagesForView);
-            });
+                    } else {
+                        result.perceptions.push(1.46);
+                    }
+                }
+                results.push(result);
+                console.log("result:", result);
+            }
+
+            return results;
         }
 
         function processGameData(data){
-            if ($scope.game == null) {
-                $scope.game = data;
-            } else {
-                angular.extend($scope.game, data);
-            }
+            angular.extend($scope.game, data);
             //if ($scope.game.rounds[game.myPlayerIndex].length == 0){}
         }
 
@@ -100,41 +118,82 @@
             getImages();
         };
 
+        $scope.giveup = function(callback){
+            $scope.loading = true;
+
+            $http.get('/api/giveup')
+                .success(function(data){
+                    init();
+                    callback();
+                })
+                .error(function(err){
+                    console.log("give up failed :C, trying one more time, error:", err);
+
+                    lastAction = $scope.giveup(callback);
+                });
+        };
 
         $scope.connect = function(){
-            $http.get('/api/connectPlayer').success(function(data){
-                console.log("data fetched, from connect", data);
-                $scope.sessionID = data.sessionID;
+            $scope.loading = true;
+            $scope.restartString = "re";
 
-                // !!!auto
-                //$scope.findGame();
-            });
+            var game = $scope.game;
+            if (game.rounds) {
+                $scope.giveup(function(){
+                    doConnect();
+                });
+            } else {
+                doConnect();
+            }
+
+            function doConnect(){
+                $http.get('/api/connectPlayer').success(function(data){
+                    console.log("data fetched, from connect", data);
+                    $scope.sessionID = data.sessionID;
+
+                    // !!!auto
+                    $scope.findGame();
+                }).error(function(err){
+                    console.log("connection failed, trying one more time, error:", err);
+
+                    lastAction = $scope.connect;
+                });
+            }
+
         };
         $scope.disconnect = function(){
             $http.get('/api/disconnectPlayer').success(function(data){
                 console.log("data fetched, from disconnect", data);
+
+                lastAction = emptyFunction;
             });
         };
 
         $scope.findGame = function(){
+            $scope.loading = true;
+
             $http.get('/api/findGame').success(function(data){
                 console.log("data fetched, from find:", data);
                 if (!data || typeof(data) !== "object") {
                     console.warn("game data is empty, unfortunately. Data:", data);
-                    return;
-                }
-
-                processGameData(data);
-
-                if ($scope.game.playersOnline == null) {
-                    if ($scope.game.myPlayerIndex == undefined) $scope.game.myPlayerIndex = $scope.game.playerIndex;
-
-                    $scope.imagesForView = applyImagesForView($scope.game.images, 4);
-
-                    // !!!auto
-                    //$scope.getDice();
                 } else {
-                    console.log("game wasn't found yet");
+                    processGameData(data);
+
+                    if ($scope.game.rounds !== undefined) {
+                        if ($scope.game.myPlayerIndex == undefined) $scope.game.myPlayerIndex = $scope.game.playerIndex;
+
+                        updateGameField();
+
+                        $scope.loading = false;
+
+                        // !!!auto
+                        //$scope.getDice();
+                        lastAction = getGameData;
+                    } else {
+                        console.log("game wasn't found yet.", $scope.game);
+
+                        lastAction = $scope.findGame;
+                    }
                 }
             });
         };
@@ -142,6 +201,8 @@
             $http.get('/api/stopFindGame')
                 .success(function(data){
                     console.log("stop find a game", data);
+
+                    lastAction = emptyFunction;
                 })
                 .error(function(data){
                     console.log("error is ", data);
@@ -166,21 +227,83 @@
                     console.log("new data:", data);
 
                     processGameData(data);
-
-                    if ($scope.game.rounds[$scope.game.myPlayerIndex].length == 1) {
-                        var newImages = [];
-                        for (var i = 0; i < indices.length; i++){
-                            newImages.push($scope.game.images[ indices[i] ]);
-                        }
-                    }
+                    updateGameField();
 
                     $scope.checkboxes = [false, false, false, false, false, false, false, false, false, false];
-                    $scope.imagesForView = applyImagesForView(newImages, 3);
                 })
                 .error(function(data){
                     console.log("error is ", data);
                 });
         };
+
+
+        function getGameData(){
+            $http.get('/api/game/' + $scope.game._id).success(function(data){
+                console.log("data fetched, from getdata", data);
+
+                processGameData(data);
+                updateGameField();
+
+                if ($scope.game.results != null) {
+                    //alert(JSON.stringify($scope.game.winner));
+                    console.log("results from getGameData:", $scope.game.results);
+
+                    lastAction = emptyFunction;
+                } else {
+                    lastAction = getGameData;
+                }
+
+            });
+        }
+
+        function updateGameField(){
+            var game = $scope.game;
+            if (!game) {
+                console.log("game isn't initialized yet");
+            } else {
+                var pId = game.playerIndex;
+                var rounds = game.rounds[pId];
+
+                if (rounds.length == 0){
+                    $scope.imagesForView = applyImagesForView($scope.game.images, 4);
+                } else if (rounds.length == 1) {
+                    var newImages = [];
+                    var indices = rounds[0].indices;
+                    for (var i = 0; i < indices.length; i++){
+                        newImages.push($scope.game.images[ indices[i] ]);
+                    }
+                    $scope.imagesForView = applyImagesForView(newImages, 3);
+                }
+
+                if (game.status == 90){
+
+                    console.log("trying calculate results");
+
+                    if (typeof(game.results) == "string"){
+                        game.results = calculateResults();
+                    }
+
+
+                }
+                if (game.status == -1){
+                    console.warn("unfortunately, game was abandoned, trying to get new one");
+                    $scope.connect();
+                }
+            }
+        }
+
+        function autoUpdater(){
+            //console.log('autoUpdater', $scope.game.myPlayerIndex, $scope.game);
+            lastAction();
+
+            if ($scope.loading){
+                $scope.loadingPoints += ".";
+                if ($scope.loadingPoints.length > 3) $scope.loadingPoints = "";
+            }
+
+            setTimeout(autoUpdater, 1000);
+        }
+        setTimeout(autoUpdater, 1000);
 
     }]);
 

@@ -108,6 +108,36 @@ router.get("/stopFindGame", function(req, res){
         res.send(null);
     }
 });
+router.get('/giveup', function(req, res){
+    var connectedCookies = req.app.connectedCookies;
+
+    var connectedCookie = connectedCookies[req.sessionID];
+    if (connectedCookie !== undefined){
+        connectedCookie.status = 1;
+
+        var game = req.app.findGameById(req.sessionID);
+        if (game != null){
+
+            // why game should finished for another one?
+            //if (game.status != 90) { endOfGame(game); }
+            if (game.leftPlayers === undefined) {
+                game.leftPlayers = {};
+            }
+            game.leftPlayers[req.sessionID] = true;
+
+            var isEnd = req.app.isEndOfGame(game);
+            if (isEnd) req.app.endOfGame(game);
+
+            res.send(null);
+        } else {
+            console.log("game not found (/api/giveup)");
+            res.send(null);
+        }
+    } else {
+        console.log("session not found (/api/giveup)");
+        res.send(null);
+    }
+});
 
 router.get('/favoriteImages/:indices', function(req, res){
     var connectedCookies = req.app.connectedCookies;
@@ -164,6 +194,36 @@ router.get('/favoriteImages/:indices', function(req, res){
         console.log("session not found (/api/favoriteImages/:indices)");
         res.send(null);
     }
+});
+
+router.get("/game/:gid", function(req, res){
+    //console.log(prepareIpToConsole(req) + " GameProcess check" );
+    var connectedCookies = req.app.connectedCookies;
+
+    var data = {};
+    var game;
+    var gid = req.params.gid;
+    if (gid != null && req.app.games[gid] !== undefined){
+        game = req.app.games[gid];
+    } else {
+        game = req.app.findGameById(req.sessionID);
+    }
+    //console.log("game:", game._id);
+    if (game) {
+        //console.log("pIndex", req.session.id, game.playerIndex);
+
+        res.send(game);
+
+        var connectedCookie = connectedCookies[req.sessionID];
+        if (connectedCookie !== undefined) {
+            connectedCookie.time = new Date();
+        }
+        req.app.removeExpiredConnections();
+    } else {
+        console.log("sending empty data:", data);
+        res.send(data);
+    }
+
 });
 
 module.exports = router;
