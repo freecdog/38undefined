@@ -87,7 +87,7 @@ router.get("/findGame", function(req, res){
         var searchPlayersCount = 2;
         req.app.apiFindGame(req, res, connectedCookie, searchPlayersCount);
     } else {
-        res.send();
+        res.send(null);
     }
 });
 router.get("/stopFindGame", function(req, res){
@@ -95,22 +95,75 @@ router.get("/stopFindGame", function(req, res){
 
     var connectedCookie = connectedCookies[req.sessionID];
     if (connectedCookie !== undefined) {
-        console.log('here in stopFindGame');
         connectedCookie.time = new Date();
         if (connectedCookie.status == 2)
             connectedCookie.status = 1;
 
         req.app.removeExpiredConnections();
 
-        console.log('and here in stopFindGame');
         console.log(req.connection.remoteAddress + ", stop find game, online: " + Object.keys(connectedCookies).length.toString());
 
-        res.send("1");
-        console.log('and may be here in stopFindGame');
+        res.send("stopped find game");
     } else {
-        res.send("-1");
+        res.send(null);
     }
 });
 
+router.get('/favoriteImages/:indices', function(req, res){
+    var connectedCookies = req.app.connectedCookies;
+
+    var connectedCookie = connectedCookies[req.sessionID];
+    if (connectedCookie !== undefined){
+        var game = req.app.findGameById(req.sessionID);
+        if (game != null) {
+            var playerIndex = req.app.getPlayerIndexInGame(game, req.sessionID);
+            // TODO if game is found why could it be -1. Especially here, may be move it to getPlayerIndexInGame().
+            if (playerIndex == -1) console.log("error while accepting combination, no player with such sessionID in this game", req.sessionID, game);
+
+            var indices = req.params.indices;
+            var playerRounds = game.rounds[playerIndex];
+            if ((playerRounds.length == 0 && indices.length == 6) || (playerRounds.length == 1 && indices.length == 4)) {
+                // validation of indices
+                var indicesValid = true;
+                for (var i = 0; i < indices.length; i++){
+                    var recentIndex = parseInt(indices[i]);
+                    if (recentIndex == "NaN" || recentIndex < 0 || recentIndex > 9) {
+                        indicesValid = false;
+                        break;
+                    }
+                }
+
+                if (indicesValid){
+                    playerRounds.push({
+                        indices: indices
+                    });
+
+                    // end of game
+                    var gameEnds = false;
+                    if (playerRounds.length == 2){
+                        gameEnds = req.app.isEndOfGame(game);
+                        if (gameEnds) req.app.endOfGame(game);
+                    }
+
+                    console.log('accepted indices', indices, 'from', req.connection.remoteAddress);//, JSON.stringify(game));
+                    res.send(game);
+                } else {
+                    console.log("error, such indices inappropriate, indices:", indices);
+                    res.send(game);
+                }
+
+            } else {
+                console.log("error, indices.length is out of range, playerRounds.length =", playerRounds.length,", length =", indices.length);
+                res.send(null);
+            }
+        } else {
+            console.log("game not found (/api/favoriteImages/:indices)");
+            res.send(null);
+        }
+    } else {
+        console.log("session not found (/api/favoriteImages/:indices)");
+        res.send(null);
+    }
+});
 
 module.exports = router;

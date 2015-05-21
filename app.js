@@ -163,9 +163,9 @@ function prepareGame(numberOfPlayers) {
         }
     }
 
-    var len = wannaPlayers.length;
+    var wannaPlayersLength = wannaPlayers.length;
     //if (len >= config.minPlayers) {
-    if (len >= numberOfPlayers) {
+    if (wannaPlayersLength >= numberOfPlayers) {
         var gameId = "g" + gamesCounter.toString();
         gamesCounter++;
 
@@ -175,10 +175,11 @@ function prepareGame(numberOfPlayers) {
         game.players = [];
         game.status = 20;
         game.startTime = new Date();
+        game.rounds = [];
 
         game.images = generateImageList();
 
-        for (var i = 0; i < len; i++) {
+        for (var i = 0; i < wannaPlayersLength; i++) {
             // Taking settings of first player
             //if (i==0) {
             //    game.settings = connectedCookies[wannaPlayers[i]].settings;
@@ -195,7 +196,6 @@ function prepareGame(numberOfPlayers) {
             }
             game.names.push(connectedCookie.name);
 
-            if (game.rounds == null) game.rounds = [];
             game.rounds.push([]);
 
             connectedCookie.status = 3;
@@ -245,6 +245,33 @@ function getPlayerIndexInGame(game, sessionID){
     }
     return ans;
 }
+function isEndOfGame(game){
+    var leftPlayers = game.leftPlayers;
+    leftPlayers = leftPlayers || {};
+    for (var i = 0; i < game.rounds.length; i++) {
+        // if player left so end of game is closer
+        if (leftPlayers[game.players[i]] !== undefined) continue;
+
+        var len = game.rounds[i].length;
+        if (len < 2) {
+            return false;
+        }
+    }
+    return true;
+}
+function endOfGame(game){
+    game.status = 90;
+
+    var leftPlayers = game.leftPlayers;
+    leftPlayers = leftPlayers || {};
+
+    game.results = "Results would be here soon";
+
+    game.endTime = new Date();
+    game.duration = game.endTime - game.startTime;  // ms
+
+    console.log("game ends:", game._id);
+}
 
 function collectOnlineStatistics(searchPlayersCount){
     var data = {};
@@ -278,6 +305,8 @@ app.apiFindGame = apiFindGame;
 app.prepareGame = prepareGame;
 app.findGameById = findGameById;
 app.getPlayerIndexInGame = getPlayerIndexInGame;
+app.isEndOfGame = isEndOfGame;
+app.endOfGame = endOfGame;
 
 app.collectOnlineStatistics = collectOnlineStatistics;
 

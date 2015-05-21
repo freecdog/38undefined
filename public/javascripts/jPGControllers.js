@@ -34,19 +34,22 @@
             $scope.checkboxes = [false, false, false, false, false, false, false, false, false, false];
             $scope.checkboxes1 = [false, false, false, false, false];
             $scope.checkboxes2 = [false, false, false, false, false];
+
+            $scope.game = null;
         }
 
-        function applyImagesForView(imageList){
+        function applyImagesForView(imageList, rowsCount){
             if (!imageList) {
                 console.warn('Looks like imageList is empty. Here it is:', imageList);
                 return [];
             }
             var appliedImages = [];
-            for (var i = 0, counter = 0; i < 4; i++){
+            for (var i = 0, counter = 0; i < rowsCount; i++){
                 var recArray = [];
                 for (var j = 0; j < i+1; j++){
                     recArray.push({
-                        index: i == 0 ? j : i == 1 ? 1 + j : i == 2 ? 3 + j : 6 + j,
+                        //index: i == 0 ? j : i == 1 ? 1 + j : i == 2 ? 3 + j : 6 + j,
+                        index: counter,
                         name: imageList[counter]
                     });
                     counter++;
@@ -78,16 +81,24 @@
                     $scope.images.push(data.images2[i]);
                 }
 
-                $scope.imagesForView = applyImagesForView($scope.images);
+                $scope.imagesForView = applyImagesForView($scope.images, 4);
                 console.log($scope.imagesForView);
             });
+        }
+
+        function processGameData(data){
+            if ($scope.game == null) {
+                $scope.game = data;
+            } else {
+                angular.extend($scope.game, data);
+            }
+            //if ($scope.game.rounds[game.myPlayerIndex].length == 0){}
         }
 
         this.refreshIt = function(){
             console.log('trying to refresh');
             getImages();
         };
-
 
 
         $scope.connect = function(){
@@ -107,17 +118,18 @@
 
         $scope.findGame = function(){
             $http.get('/api/findGame').success(function(data){
+                console.log("data fetched, from find:", data);
                 if (!data || typeof(data) !== "object") {
                     console.warn("game data is empty, unfortunately. Data:", data);
                     return;
                 }
-                console.log("data fetched, from find:", data);
-                $scope.game = data;
-                $scope.imagesForView = applyImagesForView($scope.game.images);
 
+                processGameData(data);
 
                 if ($scope.game.playersOnline == null) {
                     if ($scope.game.myPlayerIndex == undefined) $scope.game.myPlayerIndex = $scope.game.playerIndex;
+
+                    $scope.imagesForView = applyImagesForView($scope.game.images, 4);
 
                     // !!!auto
                     //$scope.getDice();
@@ -131,17 +143,60 @@
                 .success(function(data){
                     console.log("stop find a game", data);
                 })
-                .error(function(data, a, b, c){
-                    console.log("error is ", data, a, b, c);
+                .error(function(data){
+                    console.log("error is ", data);
                 });
         };
 
+        $scope.verify = function(count){
+            var counter = 0;
+            for (var i = 0; i < $scope.checkboxes.length; i++){
+                if ($scope.checkboxes[i]) counter++;
+            }
+            console.log("verification:", counter == count);
+            return counter == count;
+        };
+        $scope.send = function(){
+            var indices = "";
+            for (var i = 0; i < $scope.checkboxes.length; i++){
+                if ($scope.checkboxes[i]) indices += i.toString();
+            }
+            $http.get("/api/favoriteImages/" + indices)
+                .success(function(data){
+                    console.log("new data:", data);
 
+                    processGameData(data);
+
+                    if ($scope.game.rounds[$scope.game.myPlayerIndex].length == 1) {
+                        var newImages = [];
+                        for (var i = 0; i < indices.length; i++){
+                            newImages.push($scope.game.images[ indices[i] ]);
+                        }
+                    }
+
+                    $scope.checkboxes = [false, false, false, false, false, false, false, false, false, false];
+                    $scope.imagesForView = applyImagesForView(newImages, 3);
+                })
+                .error(function(data){
+                    console.log("error is ", data);
+                });
+        };
 
     }]);
 
     jPGControllers.controller('TabController', function(){
         this.curTab = 0;
+
+        this.setTab = function(tabIndex){
+            this.curTab = tabIndex;
+        };
+        this.isSet = function(tabIndex){
+            return this.curTab === tabIndex;
+        };
+    });
+
+    jPGControllers.controller('GalleryController', function(){
+        this.curTab = 2;
 
         this.setTab = function(tabIndex){
             this.curTab = tabIndex;
