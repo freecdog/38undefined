@@ -1,0 +1,19 @@
+<div ng-show="game.status == 90">
+    <div ng-show="game.results.haveResults">
+        <h3>Results:</h3>
+        <h3>average: <span class="text-success">{{game.results.averages[game.myPlayerIndex][1 - game.myPlayerIndex] | percentage : 1}}</span></h3>
+        <h4 class="text-muted">prediction: {{game.results.predictions[game.myPlayerIndex][1 - game.myPlayerIndex] | percentage : 1}}</h4>
+        <h4 class="text-muted">similar predictions: {{game.results.samePredictions[game.myPlayerIndex][1 - game.myPlayerIndex] | percentage : 1}}</h4>
+        <h4 class="text-muted">similar images: {{game.results.sameImages[game.myPlayerIndex][1 - game.myPlayerIndex] | percentage : 1}}</h4>
+        <!--<h3>__{{game.results}}__</h3>-->
+        <h3>overall average prediction: <span class="text-success">{{overallPrediction.value | percentage : 1}}</span></h3>
+        <h3>Play more to improve your prediction</h3>
+    </div>
+    <div ng-hide="game.results.haveResults">
+        <h3>{{game.results.message}}</h3>
+    </div>
+</div>
+
+<div ng-hide="game.status == 90">
+    <h3>Waiting for other player. He is at stage {{game.rounds[1 - game.myPlayerIndex].length + 1}}</h3>
+</div>

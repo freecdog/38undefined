@@ -12,6 +12,10 @@ router.get('/images', function(req, res, next) {
         if (!files){
             files = [];
         }
+        // use only jpg and png files (folders non-acceptable =) )
+        files = _.filter(files, function(filename){
+            return filename.toLowerCase().indexOf('jpg') != -1 || filename.toLowerCase().indexOf('png') != -1;
+        });
         //files = _.shuffle(files);
         //files.splice(10);
         // Produce a random sample from the list

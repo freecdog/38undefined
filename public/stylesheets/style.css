@@ -24,3 +24,6 @@ a {
 .hiddenCheckbox {
   display: none;
 }
+.labelSpecial {
+  box-shadow: 1px 2px 5px #000;
+}

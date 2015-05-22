@@ -52,6 +52,8 @@ var connectedCookies = {};
 var gamesCounter = 0;
 var games = {};
 var gamesInProgress = {};
+var filenames = [];
+var lastFileNamesUpdate = new Date(0);
 
 function generatePlayerName(){
     return "player" + (10000 * Math.random()).toFixed(0);
@@ -67,7 +69,7 @@ function removeExpiredConnections(){
         //if (connectedCookies.hasOwnProperty(key)) {
         if (connectedCookies[key] !== undefined) {
             //console.log ( (curTime - connectedCookies[key]).toString() );
-            if (Math.abs(curTime - connectedCookies[key].time) > 60000) {   // initially 10 min, now 1 min
+            if (Math.abs(curTime - connectedCookies[key].time) > 600000) {   // initially 10 min
 
                 for (var gInd in games) {
                     //if (games.hasOwnProperty(gInd)){
@@ -105,16 +107,25 @@ function createPlayer(){
     return connectedCookie;
 }
 function generateImageList(){
-    var filenames = fs.readdirSync('./public/images/banksy');
-    if (!filenames){
-        filenames = [];
-        console.log("Looks like there are no files at all, or wrong directory.");
+    //var path = "/images/banksy";
+    var path = "/images/lotsofimgs";
+
+    if (Math.abs((new Date()).getTime() - lastFileNamesUpdate.getTime()) > 600000){
+        console.log("updated filenames list");
+        filenames = fs.readdirSync('./public' + path);
+        if (!filenames){
+            filenames = [];
+            console.log("Looks like there are no files at all, or wrong directory.");
+        }
+        // use only jpg and png files (folders non-acceptable =) )
+        filenames = _.filter(filenames, function(filename){
+            return filename.toLowerCase().indexOf('jpg') != -1 || filename.toLowerCase().indexOf('png') != -1;
+        });
     }
-    // use only jpg and png files (folders non-acceptable =) )
-    filenames = _.filter(filenames, function(filename){
-        return filename.toLowerCase().indexOf('jpg') != -1 || filename.toLowerCase().indexOf('png') != -1;
-    });
     filenames = _.sample(filenames, 10);
+    filenames = _.map(filenames,function(filename){
+        return path + '/' + filename;
+    });
 
     return filenames;
 }

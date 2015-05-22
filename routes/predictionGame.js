@@ -6,7 +6,7 @@ var express = require('express');
 var router = express.Router();
 
 router.get('/', function(req, res, next) {
-    res.render('predictionGame', { title: 'Prediction Game' });
+    res.render('predictionGame');
 });
 
 module.exports = router;

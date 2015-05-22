@@ -32,25 +32,29 @@
         init();
 
         function init(){
-            $scope.checkboxes = [false, false, false, false, false, false, false, false, false, false];
-
-            $scope.game = {};
-
             $scope.overallPrediction = {
                 value: 0,
                 attempts: 0,
                 gamesIds: []
             };
 
+            $scope.restartString = "";
+
+            restartLevel();
+        }
+
+        function restartLevel(){
+            $scope.checkboxes = [false, false, false, false, false, false, false, false, false, false];
+
+            $scope.game = {};
+
             $scope.loadingDots = "";
             $scope.loading = false;
-
-            $scope.restartString = "";
 
             lastAction = emptyFunction;
         }
 
-        function applyImagesForView(imageList, rowsCount){
+        function applyImagesForView(imageList, rowsCount, indices){
             if (!imageList) {
                 console.warn('Looks like imageList is empty. Here it is:', imageList);
                 return [];
@@ -61,7 +65,7 @@
                 for (var j = 0; j < i+1; j++){
                     recArray.push({
                         //index: i == 0 ? j : i == 1 ? 1 + j : i == 2 ? 3 + j : 6 + j,
-                        index: counter,
+                        index: indices == null ? counter : indices[counter],
                         name: imageList[counter]
                     });
                     counter++;
@@ -81,13 +85,14 @@
             var game = $scope.game;
             var rounds = game.rounds;
             var pId = game.myPlayerIndex;
-            var predictions = [], samePredictions = [], sameImages = [];
+            var predictions = [], samePredictions = [], sameImages = [], averages = [];
             var ans = {
                 haveResults: true,
                 message: "",
                 predictions: predictions,
                 samePredictions: samePredictions,
-                sameImages: sameImages
+                sameImages: sameImages,
+                averages: averages
             };
 
             var canCalculate = true;
@@ -112,6 +117,7 @@
                     var playerPrediction = [];
                     var samePrediction = [];
                     var sameImage = [];
+                    var average = [];
                     for (var j = 0; j < game.names.length; j++){
                         if (i != j) {
                             var coincidences = 0.0;
@@ -153,15 +159,19 @@
                             }
                             sameImage.push(sameImageCoincidences / imagesPlayeri.length);
 
+                            average.push( (coincidences / suggestion.length + samePredictionCoincidences / predictionPlayeri.length + sameImageCoincidences / imagesPlayeri.length) / 3 );
+
                         } else {
                             playerPrediction.push(1.46);
                             samePrediction.push(1.46);
                             sameImage.push(1.46);
+                            average.push(1.46);
                         }
                     }
                     predictions.push(playerPrediction);
                     samePredictions.push(samePrediction);
                     sameImages.push(sameImage);
+                    averages.push(average);
                 }
             } else {
                 ans.haveResults = false;
@@ -179,7 +189,8 @@
                 }
             }
             if (needCalculate){
-                var newValue = ((prediction.value * prediction.attempts) + game.results.predictions[game.myPlayerIndex][1 - game.myPlayerIndex] ) / (prediction.attempts + 1);
+                //var newValue = ((prediction.value * prediction.attempts) + game.results.predictions[game.myPlayerIndex][1 - game.myPlayerIndex] ) / (prediction.attempts + 1);
+                var newValue = ((prediction.value * prediction.attempts) + game.results.averages[game.myPlayerIndex][1 - game.myPlayerIndex] ) / (prediction.attempts + 1);
                 prediction.value = newValue;
                 prediction.attempts++;
                 prediction.gamesIds.push(game._id);
@@ -193,17 +204,12 @@
             //if ($scope.game.rounds[game.myPlayerIndex].length == 0){}
         }
 
-        this.refreshIt = function(){
-            console.log('trying to refresh');
-            getImages();
-        };
-
         $scope.giveup = function(callback){
             $scope.loading = true;
 
             $http.get('/api/giveup')
                 .success(function(data){
-                    init();
+                    restartLevel();
                     callback();
                 })
                 .error(function(err){
@@ -317,6 +323,21 @@
                 });
         };
 
+        $scope.$watch('checkboxes', function(newValue){
+            var cntr = 0;
+            for (var i = 0; i < $scope.checkboxes.length; i++) if ($scope.checkboxes[i] == true) cntr++;
+
+            if (cntr >= 0 && cntr < 3) $scope.send6ButtonClass = "btn-default";
+            else if (cntr >= 3 && cntr < 6) $scope.send6ButtonClass = "btn-warning";
+            else if (cntr == 6 ) $scope.send6ButtonClass = "btn-success";
+            else $scope.send6ButtonClass = "btn-warning";
+
+            if (cntr >= 0 && cntr < 1) $scope.send4ButtonClass = "btn-default";
+            else if (cntr >= 1 && cntr < 4) $scope.send4ButtonClass = "btn-warning";
+            else if (cntr == 4 ) $scope.send4ButtonClass = "btn-success";
+            else $scope.send4ButtonClass = "btn-warning";
+
+        }, true);
 
         function getGameData(){
             $http.get('/api/game/' + $scope.game._id).success(function(data){
@@ -325,7 +346,7 @@
                 processGameData(data);
                 updateGameField();
 
-                if ($scope.game.results != null) {
+                if ($scope.game.status == 90) {
                     //alert(JSON.stringify($scope.game.winner));
                     console.log("results from getGameData:", $scope.game.results);
 
@@ -353,11 +374,13 @@
                     for (var i = 0; i < indices.length; i++){
                         newImages.push($scope.game.images[ indices[i] ]);
                     }
-                    $scope.imagesForView = applyImagesForView(newImages, 3);
+                    $scope.imagesForView = applyImagesForView(newImages, 3, indices);
                 }
 
                 if (game.status == 90){
                     console.log("trying calculate results");
+
+                    $scope.restartString = "";
 
                     if (typeof(game.results) == "string"){
                         game.results = calculateResults();
@@ -409,5 +432,21 @@
             return this.curTab === tabIndex;
         };
     });
+
+    jPGControllers.directive('resultsView', function(){
+        return {
+            restrict: 'E',
+            templateUrl: 'partials/results-view.html',
+            controller: function(){
+            },
+            controllerAs: 'resultsView'
+        };
+    });
+
+    jPGControllers.filter('percentage', ['$filter', function ($filter) {
+        return function (input, decimals) {
+            return $filter('number')(input * 100, decimals) + '%';
+        };
+    }]);
 
 })(angular);
