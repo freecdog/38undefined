@@ -36,7 +36,13 @@
 
             $scope.game = {};
 
-            $scope.loadingPoints = "";
+            $scope.overallPrediction = {
+                value: 0,
+                attempts: 0,
+                gamesIds: []
+            };
+
+            $scope.loadingDots = "";
             $scope.loading = false;
 
             $scope.restartString = "";
@@ -75,37 +81,111 @@
             var game = $scope.game;
             var rounds = game.rounds;
             var pId = game.myPlayerIndex;
-            var results = [];
+            var predictions = [], samePredictions = [], sameImages = [];
+            var ans = {
+                haveResults: true,
+                message: "",
+                predictions: predictions,
+                samePredictions: samePredictions,
+                sameImages: sameImages
+            };
 
-            // each player with each other
-            for (var i = 0; i < game.names.length; i++){
-                var result = {
-                    perceptions: []
-                };
-                for (var j = 0; j < game.names.length; j++){
-                    if (i != j) {
-                        var coincidences = 0.0;
-                        var suggestion = rounds[i][1].indices;
-                        var choice = rounds[j][0].indices;
-                        for (var p = 0; p < suggestion.length; p++){
-                            for (var q = 0; q < choice.length; q++){
-                                if (suggestion[p] == choice[q]) {
-                                    coincidences += 1.0;
-                                    break;
-                                }
-                            }
+            var canCalculate = true;
+            var standardLength = 2;
+            for (var i = 0; i < rounds.length; i++){
+                if (rounds[i].length == standardLength) {
+                    for (var j = 0; j < rounds[i].length; j++) {
+                        if (rounds[i][j].hasOwnProperty('indices') == false) {
+                            canCalculate = false;
+                            break;
                         }
-                        result.perceptions.push(coincidences / suggestion.length);
-
-                    } else {
-                        result.perceptions.push(1.46);
                     }
+                } else {
+                    canCalculate = false;
+                    break;
                 }
-                results.push(result);
-                console.log("result:", result);
             }
 
-            return results;
+            if (canCalculate){
+                // each player with each other
+                for (var i = 0; i < game.names.length; i++){
+                    var playerPrediction = [];
+                    var samePrediction = [];
+                    var sameImage = [];
+                    for (var j = 0; j < game.names.length; j++){
+                        if (i != j) {
+                            var coincidences = 0.0;
+                            var suggestion = rounds[i][1].indices;
+                            var choice = rounds[j][0].indices;
+                            for (var p = 0; p < suggestion.length; p++){
+                                for (var q = 0; q < choice.length; q++){
+                                    if (suggestion[p] == choice[q]) {
+                                        coincidences += 1.0;
+                                        break;
+                                    }
+                                }
+                            }
+                            playerPrediction.push(coincidences / suggestion.length);
+
+                            var samePredictionCoincidences = 0.0;
+                            var predictionPlayeri = rounds[i][1].indices;
+                            var predictionPlayerj = rounds[j][1].indices;
+                            for (var p = 0; p < predictionPlayeri.length; p++){
+                                for (var q = 0; q < predictionPlayerj.length; q++){
+                                    if (predictionPlayeri[p] == predictionPlayerj[q]) {
+                                        samePredictionCoincidences += 1.0;
+                                        break;
+                                    }
+                                }
+                            }
+                            samePrediction.push(samePredictionCoincidences / predictionPlayeri.length);
+
+                            var sameImageCoincidences = 0.0;
+                            var imagesPlayeri = rounds[i][0].indices;
+                            var imagesPlayerj = rounds[j][0].indices;
+                            for (var p = 0; p < imagesPlayeri.length; p++){
+                                for (var q = 0; q < imagesPlayerj.length; q++){
+                                    if (imagesPlayeri[p] == imagesPlayerj[q]) {
+                                        sameImageCoincidences += 1.0;
+                                        break;
+                                    }
+                                }
+                            }
+                            sameImage.push(sameImageCoincidences / imagesPlayeri.length);
+
+                        } else {
+                            playerPrediction.push(1.46);
+                            samePrediction.push(1.46);
+                            sameImage.push(1.46);
+                        }
+                    }
+                    predictions.push(playerPrediction);
+                    samePredictions.push(samePrediction);
+                    sameImages.push(sameImage);
+                }
+            } else {
+                ans.haveResults = false;
+                ans.message = "Game was abandoned, my apologize. Please, start new one";
+            }
+
+            return ans;
+        }
+        function calculateOverallPrediction(prediction, game){
+            var needCalculate = true;
+            for (var i = 0; i < prediction.gamesIds.length; i++){
+                if (game._id == prediction.gamesIds[i]){
+                    needCalculate = false;
+                    break;
+                }
+            }
+            if (needCalculate){
+                var newValue = ((prediction.value * prediction.attempts) + game.results.predictions[game.myPlayerIndex][1 - game.myPlayerIndex] ) / (prediction.attempts + 1);
+                prediction.value = newValue;
+                prediction.attempts++;
+                prediction.gamesIds.push(game._id);
+            } else {
+                console.log("No need to recalculate overall prediction");
+            }
         }
 
         function processGameData(data){
@@ -185,6 +265,7 @@
                         updateGameField();
 
                         $scope.loading = false;
+                        $scope.loadingDots = "";
 
                         // !!!auto
                         //$scope.getDice();
@@ -276,14 +357,14 @@
                 }
 
                 if (game.status == 90){
-
                     console.log("trying calculate results");
 
                     if (typeof(game.results) == "string"){
                         game.results = calculateResults();
+                        if (game.results.haveResults){
+                            calculateOverallPrediction($scope.overallPrediction, game);
+                        }
                     }
-
-
                 }
                 if (game.status == -1){
                     console.warn("unfortunately, game was abandoned, trying to get new one");
@@ -297,8 +378,8 @@
             lastAction();
 
             if ($scope.loading){
-                $scope.loadingPoints += ".";
-                if ($scope.loadingPoints.length > 3) $scope.loadingPoints = "";
+                $scope.loadingDots += ".";
+                if ($scope.loadingDots.length > 3) $scope.loadingDots = "";
             }
 
             setTimeout(autoUpdater, 1000);
