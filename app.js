@@ -206,7 +206,7 @@ function generateImageList(){
     var imgsPath = "/images/lotsofimgs";
 
     console.log(Math.abs((new Date()).getTime() - lastFileNamesUpdate));
-    if (Math.abs((new Date()).getTime() - lastFileNamesUpdate) > 600000){
+    if (Math.abs((new Date()).getTime() - lastFileNamesUpdate) > 60000){
         lastFileNamesUpdate = (new Date()).getTime();
 
         console.log("trying to update filenames list");
@@ -221,12 +221,13 @@ function generateImageList(){
             return filename.toLowerCase().indexOf('jpg') != -1 || filename.toLowerCase().indexOf('png') != -1;
         });
     }
-    filenames = _.sample(filenames, 10);
-    filenames = _.map(filenames,function(filename){
+
+    var recentFiles = _.sample(filenames, 10);
+    recentFiles = _.map(recentFiles,function(filename){
         return imgsPath + '/' + filename;
     });
 
-    return filenames;
+    return recentFiles;
 }
 // connectedCookie status:
 // 1 — connected
