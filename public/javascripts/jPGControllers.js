@@ -375,14 +375,16 @@
                 var rounds = game.rounds[pId];
 
                 if (rounds.length == 0){
-                    $scope.imagesForView = applyImagesForView($scope.game.images, 4);
+                    if ($scope.imagesForView == null || $scope.imagesForView.length != 4)
+                        $scope.imagesForView = applyImagesForView($scope.game.images, 4);
                 } else if (rounds.length == 1) {
                     var newImages = [];
                     var indices = rounds[0].indices;
                     for (var i = 0; i < indices.length; i++){
                         newImages.push($scope.game.images[ indices[i] ]);
                     }
-                    $scope.imagesForView = applyImagesForView(newImages, 3, indices);
+                    if ($scope.imagesForView == null || $scope.imagesForView.length != 3)
+                        $scope.imagesForView = applyImagesForView(newImages, 3, indices);
                 }
 
                 if (game.status == 90){
