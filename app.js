@@ -202,12 +202,16 @@ function createPlayer(){
     return connectedCookie;
 }
 function generateImageList(){
-    //var path = "/images/banksy";
-    var path = "/images/lotsofimgs";
+    //var imgsPath = "/images/banksy";
+    var imgsPath = "/images/lotsofimgs";
 
+    console.log(Math.abs((new Date()).getTime() - lastFileNamesUpdate.getTime()));
     if (Math.abs((new Date()).getTime() - lastFileNamesUpdate.getTime()) > 600000){
-        console.log("updated filenames list");
-        filenames = fs.readdirSync('./public' + path);
+        lastFileNamesUpdate = (new Date()).getTime();
+
+        console.log("trying to update filenames list");
+        console.log(path.join(__dirname, 'public' + imgsPath));
+        filenames = fs.readdirSync(path.join(__dirname, 'public' + imgsPath));
         if (!filenames){
             filenames = [];
             console.log("Looks like there are no files at all, or wrong directory.");
@@ -219,7 +223,7 @@ function generateImageList(){
     }
     filenames = _.sample(filenames, 10);
     filenames = _.map(filenames,function(filename){
-        return path + '/' + filename;
+        return imgsPath + '/' + filename;
     });
 
     return filenames;
