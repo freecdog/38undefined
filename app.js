@@ -122,7 +122,7 @@ var gamesCounter = 0;
 var games = {};
 var gamesInProgress = {};
 var filenames = [];
-var lastFileNamesUpdate = new Date(0);
+var lastFileNamesUpdate = new Date(0).getTime();
 
 function readTODOs(callback){
     callback = callback || noop;
@@ -205,8 +205,8 @@ function generateImageList(){
     //var imgsPath = "/images/banksy";
     var imgsPath = "/images/lotsofimgs";
 
-    console.log(Math.abs((new Date()).getTime() - lastFileNamesUpdate.getTime()));
-    if (Math.abs((new Date()).getTime() - lastFileNamesUpdate.getTime()) > 600000){
+    console.log(Math.abs((new Date()).getTime() - lastFileNamesUpdate));
+    if (Math.abs((new Date()).getTime() - lastFileNamesUpdate) > 600000){
         lastFileNamesUpdate = (new Date()).getTime();
 
         console.log("trying to update filenames list");
