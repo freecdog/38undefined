@@ -121,7 +121,41 @@ html(ng-app="jPGApp")
                         results-view
 
                 //- TO-DO TO-DO TO-DO TO-DO TO-DO TO-DO TO-DO TO-DO TO-DO TO-DO TO-DO TO-DO TO-DO TO-DO TO-DO TO-DO
-                div(ng-show="tab.isSet(1)")
+                div(ng-show="tab.isSet(1)" ng-controller="TODOController as TODOCtrl")
+
+                    div(class="container")
+                        form(name="todoForm" ng-submit="addTODO()")
+
+                            <!--  Live Preview -->
+                            blockquote(ng-hide="true")
+                                h3(class="glyphicon" ng-class="newTODO.glyphicon")
+                                br
+                                strong Add to {{newTODO.concentration}}
+                                br
+                                span {{newTODO.text ? "" : "&nbsp;"}}{{newTODO.text}}
+                                    span(class="error" ng-show="todoForm.text.$error.maxlength") My apologize, but it's too much
+                                cite(class="clearfix") —{{newTODO.author}}
+                                    span(class="error" ng-show="todoForm.author.$error.maxlength") My apologize, but it's too much
+
+                            //- Review Form Review Form Review Form Review Form Review Form Review Form Review Form
+                            h4 Submit a TODO
+                            fieldset(class="form-group")
+                                //- ng-options="option.name for option in options"
+                                select(ng-model="newTODO.glyphicon" class="form-control" ng-options="glyphicon for glyphicon in ['glyphicon-ok', 'glyphicon-remove']" title="icon")
+                                    option(value) icon
+                            fieldset(class="form-group")
+                                select(ng-model="newTODO.glyphiconColor" class="form-control" ng-options="glyphiconColor for glyphiconColor in ['text-muted', 'text-primary', 'text-warning', 'text-danger', 'text-success', 'text-info']" title="color")
+                                    option(value) color
+                            fieldset(class="form-group")
+                                select(ng-model="newTODO.concentration" class="form-control" ng-options="concentration for concentration in ['back-end', 'front-end']" title="concentration")
+                                    option(value) field of development
+                            fieldset(class="form-group")
+                                textarea(ng-model="newTODO.text" name="text" class="form-control" placeholder="Write a short TODO..." title="todo text" ng-minlength="1" ng-maxlength="300")
+                            fieldset(class="form-group")
+                                input(ng-model="newTODO.author" name="author" type="text" class="form-control" placeholder="What is your name?" title="Name" ng-minlength="1" ng-maxlength="100")
+                            fieldset(class="form-group")
+                                input(type="submit" class="btn pull-right" ng-class="{'btn-default': !todoForm.$valid, 'btn-primary': todoForm.$valid}" value="Submit TODO" ng-click="todoForm.$valid && TODOCtrl.addTODO()")
+
                     div(class="row")
                         div(class="col-xs-12")
                             h3 TODOs:
@@ -130,18 +164,39 @@ html(ng-app="jPGApp")
                         div(class="col-xs-12 col-sm-1")
                             h3 back-end:
                         div(class="col-xs-11 col-sm-11")
+
+                            //- Live Preview Live Preview Live Preview Live Preview Live Preview Live Preview
+                            div(class="row" ng-show="(newTODO.text != '' || newTODO.author != '') && newTODO.concentration == 'back-end'")
+                                div(class="col-xs-2 col-sm-1 text-center")
+                                    h3(class="glyphicon" ng-class="[newTODO.glyphicon, newTODO.glyphiconColor]")
+                                div(class="col-xs-10 col-sm-11")
+                                    h3 {{newTODO.text ? "" : "&nbsp;"}}{{newTODO.text}}
+                                        span(class="error" ng-show="todoForm.text.$error.maxlength") My apologize, but it's too much
+                                    span {{newTODO.author}}
+                                        span(class="error" ng-show="todoForm.author.$error.maxlength") My apologize, but it's too much
+
+                            //- Users back-end TODOs Users back-end TODOs Users back-end TODOs Users back-end TODOs
+                            div(class="row" ng-repeat="backEndTODO in TODOs | orderBy : 'createdOn':true")
+                                div(ng-show="backEndTODO.concentration == 'back-end'")
+                                    div(class="col-xs-2 col-sm-1 text-center")
+                                        h3(class="glyphicon" ng-class="[backEndTODO.glyphicon, backEndTODO.glyphiconColor]")
+                                    div(class="col-xs-10 col-sm-11")
+                                        h3 {{backEndTODO.text}}
+                                        span {{backEndTODO.author}}
+                                        br
+                                        span(class="text-muted") —{{backEndTODO.createdOn | date:'dd.MM.yyyy, HH:mm:ss'}}
+
                             div(class="row")
                                 div(class="col-xs-2 col-sm-1 text-center")
-                                    //-h3(class="glyphicon glyphicon-remove text-danger")
-                                    h1(class="text-warning") ~
+                                    h3(class="glyphicon glyphicon-ok")
                                 div(class="col-xs-10 col-sm-11")
-                                    h3 It is unplayable at all.
-                                    span this message will be here until it will be playable =)
+                                    h3 It is unplayable at all
+                                    span formally, it could be played now
                             div(class="row")
                                 div(class="col-xs-2 col-sm-1 text-center")
                                     h3(class="glyphicon glyphicon-remove text-danger")
                                 div(class="col-xs-10 col-sm-11")
-                                    h3 Solve all problems with start/restart/end game.
+                                    h3 Solve all problems with start/restart/end game
                                     span turn off auto requests and solve it
                             div(class="row")
                                 div(class="col-xs-2 col-sm-1 text-center")
@@ -166,6 +221,28 @@ html(ng-app="jPGApp")
                         div(class="col-xs-12 col-sm-1")
                             h3 front-end:
                         div(class="col-xs-11 col-sm-11")
+
+                            //- Live Preview Live Preview Live Preview Live Preview Live Preview Live Preview
+                            div(class="row" ng-show="(newTODO.text != '' || newTODO.author != '') && newTODO.concentration == 'front-end'")
+                                div(class="col-xs-2 col-sm-1 text-center")
+                                    h3(class="glyphicon" ng-class="[newTODO.glyphicon, newTODO.glyphiconColor]")
+                                div(class="col-xs-10 col-sm-11")
+                                    h3 {{newTODO.text ? "" : "&nbsp;"}}{{newTODO.text}}
+                                        span(class="error" ng-show="todoForm.text.$error.maxlength") My apologize, but it's too much
+                                    span {{newTODO.author}}
+                                        span(class="error" ng-show="todoForm.author.$error.maxlength") My apologize, but it's too much
+
+                            //- Users back-end TODOs Users back-end TODOs Users back-end TODOs Users back-end TODOs
+                            div(class="row" ng-repeat="frontEndTODO in TODOs | orderBy : 'createdOn':true")
+                                div(ng-show="frontEndTODO.concentration == 'front-end'")
+                                    div(class="col-xs-2 col-sm-1 text-center")
+                                        h3(class="glyphicon" ng-class="[frontEndTODO.glyphicon, frontEndTODO.glyphiconColor]")
+                                    div(class="col-xs-10 col-sm-11")
+                                        h3 {{frontEndTODO.text}}
+                                        span {{frontEndTODO.author}}
+                                        br
+                                        span(class="text-muted") —{{frontEndTODO.createdOn | date:'dd.MM.yyyy, HH:mm:ss'}}
+
                             div(class="row")
                                 div(class="col-xs-2 col-sm-1 text-center")
                                     h3(class="glyphicon glyphicon-remove text-danger")
@@ -180,7 +257,7 @@ html(ng-app="jPGApp")
                                 div(class="col-xs-2 col-sm-1 text-center")
                                     h3(class="glyphicon glyphicon-remove text-danger")
                                 div(class="col-xs-10 col-sm-11")
-                                    h3 Fill in Info block
+                                    h3 Fill in information block
                             div(class="row")
                                 div(class="col-xs-2 col-sm-1 text-center")
                                     h3(class="glyphicon glyphicon-remove text-danger")
@@ -190,7 +267,7 @@ html(ng-app="jPGApp")
                                 div(class="col-xs-2 col-sm-1 text-center")
                                     h3(class="glyphicon glyphicon-ok")
                                 div(class="col-xs-10 col-sm-11")
-                                    h3 Indexes are incorrect (row dependent)!
+                                    h3 Indices are incorrect (row dependent)!
                             div(class="row")
                                 div(class="col-xs-2 col-sm-1 text-center")
                                     h3(class="glyphicon glyphicon-ok")

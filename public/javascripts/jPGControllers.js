@@ -412,7 +412,7 @@
     }]);
 
     jPGControllers.controller('TabController', function(){
-        this.curTab = 0;
+        this.curTab = 1;
 
         this.setTab = function(tabIndex){
             this.curTab = tabIndex;
@@ -432,6 +432,55 @@
             return this.curTab === tabIndex;
         };
     });
+
+    jPGControllers.controller('TODOController', ['$scope', '$http', function($scope, $http){
+
+        init();
+
+        function init(){
+            console.log("TODOController initializing");
+
+            $scope.TODOs = [];
+            clearTODO();
+
+            $http.get('/api/todos')
+                .success(function(data){
+                    console.log("TODOs", data);
+                    $scope.TODOs = data;
+                })
+                .error(function(err){
+                    console.log("TODOs list was not sent, error:", err);
+                });
+        }
+
+        function clearTODO(){
+            $scope.newTODO = {
+                concentration: "back-end",
+                glyphicon: "glyphicon-remove",
+                glyphiconColor: "",
+                text: "",
+                author: "",
+                createdOn: ""
+            };
+        }
+
+        this.addTODO = function(){
+            console.log('trying to add, TODO:', $scope.newTODO);
+            $scope.newTODO.createdOn = Date.now();
+
+            $http.post('/api/todo', $scope.newTODO)
+                .success(function(data) {
+                    console.log("new todo posted successfully, response:", data);
+
+                    $scope.TODOs.push($scope.newTODO);
+
+                    clearTODO();
+                })
+                .error(function(err){
+                    console.log("todo wasn't added, error:", err);
+                });
+        };
+    }]);
 
     jPGControllers.directive('resultsView', function(){
         return {

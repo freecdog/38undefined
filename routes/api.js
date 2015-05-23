@@ -86,6 +86,8 @@ router.get("/disconnectPlayer", function(req, res){
 router.get("/findGame", function(req, res){
     var connectedCookies = req.app.connectedCookies;
 
+    console.log("findGame from", req.connection.remoteAddress);
+
     var connectedCookie = connectedCookies[req.sessionID];
     if (connectedCookie !== undefined){
         var searchPlayersCount = 2;
@@ -228,6 +230,16 @@ router.get("/game/:gid", function(req, res){
         res.send(data);
     }
 
+});
+
+router.get("/todos", function(req, res){
+    req.app.readTODOs(function(err, todos){
+        res.send(todos);
+    });
+});
+router.post("/todo", function(req, res){
+    //console.log("body:", req.body);
+    req.app.writeTODO(req.body);
 });
 
 module.exports = router;

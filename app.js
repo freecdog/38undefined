@@ -20,6 +20,36 @@ var config = {
     "secret": "someSecret"
 };
 
+var noop = function(){};
+function readJSONFile(filepath, callback){
+    callback = callback || noop;
+    fs.readFile(filepath, {encoding: "utf8"}, function(err, filedata){
+        if (err) {
+            console.log("read error:", err);
+            callback(e, null);
+        } else {
+            // some hack with first symbol =/
+            filedata = filedata.replace(/^\uFEFF/, '');
+            // parsing file to JSON object
+            var jsondata = JSON.parse(filedata);
+
+            callback(null, jsondata);
+        }
+    });
+}
+function writeJSONFile(filepath, jsondata, callback){
+    callback = callback || noop;
+    fs.writeFile(filepath, JSON.stringify(jsondata), {encoding: "utf8"}, function (err) {
+        if (err) {
+            console.log("write error:", err);
+            callback(e, null);
+        } else {
+            console.log('File has been successfully written');
+            callback();
+        }
+    });
+}
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -48,12 +78,41 @@ app.use('/bootstrap', function(req, res){
 });
 
 // variables
+var TODOs = [];
+
 var connectedCookies = {};
 var gamesCounter = 0;
 var games = {};
 var gamesInProgress = {};
 var filenames = [];
 var lastFileNamesUpdate = new Date(0);
+
+function readTODOs(callback){
+    callback = callback || noop;
+    readJSONFile(path.join(__dirname, 'usertodos.txt'), function(err, jsondata){
+        if (jsondata){
+            TODOs = jsondata;
+            console.log("TODOs:", TODOs);
+            callback(err, TODOs);
+        } else {
+            console.log('No json data in file');
+            callback(err);
+        }
+    });
+}
+// just read TODOs from usertodos.txt
+readTODOs();
+
+function writeTODO(newTODO){
+    var filepath = path.join(__dirname, 'usertodos.txt');
+    readJSONFile(filepath, function(err, jsondata){
+        jsondata.push(newTODO);
+        writeJSONFile(filepath, jsondata, function(){
+            readTODOs();
+            console.log("newTODO was successfully added");
+        });
+    });
+}
 
 function generatePlayerName(){
     return "player" + (10000 * Math.random()).toFixed(0);
@@ -322,6 +381,8 @@ app.endOfGame = endOfGame;
 
 app.collectOnlineStatistics = collectOnlineStatistics;
 
+app.readTODOs = readTODOs;
+app.writeTODO = writeTODO;
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
