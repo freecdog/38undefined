@@ -1,12 +1,29 @@
 <div ng-show="game.status == 90">
     <div ng-show="game.results.haveResults">
         <h3>Results:</h3>
-        <h3>average: <span class="text-success">{{game.results.averages[game.myPlayerIndex][1 - game.myPlayerIndex] | percentage : 1}}</span></h3>
-        <h4 class="text-muted">prediction: {{game.results.predictions[game.myPlayerIndex][1 - game.myPlayerIndex] | percentage : 1}}</h4>
-        <h4 class="text-muted">similar predictions: {{game.results.samePredictions[game.myPlayerIndex][1 - game.myPlayerIndex] | percentage : 1}}</h4>
-        <h4 class="text-muted">similar images: {{game.results.sameImages[game.myPlayerIndex][1 - game.myPlayerIndex] | percentage : 1}}</h4>
+        <!--<h3>average: <span class="text-success">{{game.results.averages[game.myPlayerIndex][1 - game.myPlayerIndex] | percentage : 1}}</span></h3>-->
+        <h3 class="">prediction: <span class="text-success">{{game.results.predictions[game.myPlayerIndex][1 - game.myPlayerIndex] | percentage : 1}}</span></h3>
+        <!--<h4 class="text-muted">similar predictions: {{game.results.samePredictions[game.myPlayerIndex][1 - game.myPlayerIndex] | percentage : 1}}</h4>-->
+        <!--<h4 class="">same taste: {{game.results.sameImages[game.myPlayerIndex][1 - game.myPlayerIndex] | percentage : 1}}</h4>-->
+        <h3 class="">same taste: {{game.results.sameImagesIndices.length}}/{{game.rounds[game.myPlayerIndex][0].indices.length}}</h3>
         <!--<h3>__{{game.results}}__</h3>-->
-        <h3>overall average prediction: <span class="text-success">{{overallPrediction.value | percentage : 1}}</span></h3>
+        <container>
+            <div class="row">
+                <!--<div ng-class="{'col-xs-4': game.results.sameImagesIndices.length == 2, 'col-xs-3': game.results.sameImagesIndices.length == 3, 'col-xs-2': game.results.sameImagesIndices.length == 4, 'col-xs-1': game.results.sameImagesIndices.length == 5}"></div>-->
+                <!--<div class="col-xs-2" ng-repeat="imageIndex in game.results.sameImagesIndices track by $index">-->
+
+                <div ng-class="{'col-xs-1': game.results.sameImagesIndices.length == 5}"></div>
+                <div ng-repeat="imageIndex in game.results.sameImagesIndices track by $index" ng-class="{'col-xs-6': game.results.sameImagesIndices.length == 2, 'col-xs-4': game.results.sameImagesIndices.length == 3, 'col-xs-3': game.results.sameImagesIndices.length == 4, 'col-xs-2': game.results.sameImagesIndices.length == 5 || game.results.sameImagesIndices.length == 6}">
+                    <div class="row">
+                        <label class="labelSpecial">
+                            <img ng-src="{{game.images[imageIndex]}}" class="img-responsive">
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </container>
+        <h4>overall prediction: {{overallResults.prediction | percentage : 1}}</h4>
+        <h4>overall taste: {{overallResults.similarTaste | percentage : 1}}</h4>
         <h3>Play more to improve your prediction</h3>
     </div>
     <div ng-hide="game.results.haveResults">

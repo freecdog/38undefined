@@ -32,8 +32,9 @@
         init();
 
         function init(){
-            $scope.overallPrediction = {
-                value: 0,
+            $scope.overallResults = {
+                prediction: 0.0,
+                similarTaste: 0.0,
                 attempts: 0,
                 gamesIds: []
             };
@@ -85,13 +86,14 @@
             var game = $scope.game;
             var rounds = game.rounds;
             var pId = game.myPlayerIndex;
-            var predictions = [], samePredictions = [], sameImages = [], averages = [];
+            var predictions = [], samePredictions = [], sameImages = [], sameImagesIndices = [], averages = [];
             var ans = {
                 haveResults: true,
                 message: "",
                 predictions: predictions,
                 samePredictions: samePredictions,
                 sameImages: sameImages,
+                sameImagesIndices: sameImagesIndices,
                 averages: averages
             };
 
@@ -152,6 +154,10 @@
                             for (var p = 0; p < imagesPlayeri.length; p++){
                                 for (var q = 0; q < imagesPlayerj.length; q++){
                                     if (imagesPlayeri[p] == imagesPlayerj[q]) {
+
+                                        // no need to store indices more than once, because sameImages equal among players
+                                        if (i == 0) sameImagesIndices.push(imagesPlayeri[p]);
+
                                         sameImageCoincidences += 1.0;
                                         break;
                                     }
@@ -175,25 +181,27 @@
                 }
             } else {
                 ans.haveResults = false;
-                ans.message = "Game was abandoned, my apologize. Please, start new one";
+                ans.message = "Game was abandoned by other player, my apologize. Please, start new one";
             }
 
             return ans;
         }
-        function calculateOverallPrediction(prediction, game){
+        function calculateOverallPrediction(allResults, game){
             var needCalculate = true;
-            for (var i = 0; i < prediction.gamesIds.length; i++){
-                if (game._id == prediction.gamesIds[i]){
+            for (var i = 0; i < allResults.gamesIds.length; i++){
+                if (game._id == allResults.gamesIds[i]){
                     needCalculate = false;
                     break;
                 }
             }
             if (needCalculate){
-                //var newValue = ((prediction.value * prediction.attempts) + game.results.predictions[game.myPlayerIndex][1 - game.myPlayerIndex] ) / (prediction.attempts + 1);
-                var newValue = ((prediction.value * prediction.attempts) + game.results.averages[game.myPlayerIndex][1 - game.myPlayerIndex] ) / (prediction.attempts + 1);
-                prediction.value = newValue;
-                prediction.attempts++;
-                prediction.gamesIds.push(game._id);
+                //var newPrediction = ((allResults.value * allResults.attempts) + game.results.predictions[game.myPlayerIndex][1 - game.myPlayerIndex] ) / (allResults.attempts + 1);
+                var newPrediction = ((allResults.prediction * allResults.attempts) + game.results.predictions[game.myPlayerIndex][1 - game.myPlayerIndex] ) / (allResults.attempts + 1);
+                var newSimilarTaste = ((allResults.similarTaste * allResults.attempts) + game.results.sameImages[game.myPlayerIndex][1 - game.myPlayerIndex] ) / (allResults.attempts + 1);
+                allResults.prediction = newPrediction;
+                allResults.similarTaste = newSimilarTaste;
+                allResults.attempts++;
+                allResults.gamesIds.push(game._id);
             } else {
                 console.log("No need to recalculate overall prediction");
             }
@@ -384,8 +392,9 @@
 
                     if (typeof(game.results) == "string"){
                         game.results = calculateResults();
+                        console.warn("results:", game.results);
                         if (game.results.haveResults){
-                            calculateOverallPrediction($scope.overallPrediction, game);
+                            calculateOverallPrediction($scope.overallResults, game);
                         }
                     }
                 }
@@ -412,7 +421,7 @@
     }]);
 
     jPGControllers.controller('TabController', function(){
-        this.curTab = 1;
+        this.curTab = 0;
 
         this.setTab = function(tabIndex){
             this.curTab = tabIndex;
@@ -442,6 +451,9 @@
 
             $scope.TODOs = [];
             clearTODO();
+
+            $scope.iconsForTODOs = ['glyphicon-ok', 'glyphicon-remove'];
+            $scope.colorsForTODOs = ['text-muted', 'text-primary', 'text-warning', 'text-danger', 'text-success', 'text-info'];
 
             $http.get('/api/todos')
                 .success(function(data){

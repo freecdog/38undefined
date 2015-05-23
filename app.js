@@ -7,9 +7,11 @@ var bodyParser = require('body-parser');
 var session = require('express-session');
 var _ = require('underscore');
 var fs = require('fs');
+var crypto = require('crypto');
 
 var routes = require('./routes/index');
 var predictionGame = require('./routes/predictionGame');
+var restartServerRoute = require('./routes/restartServer');
 var api = require('./routes/api');
 
 var app = express();
@@ -50,6 +52,39 @@ function writeJSONFile(filepath, jsondata, callback){
     });
 }
 
+// TODO. Looks like I've done it, but tricky and odd solution
+// When service restarting it terminate parent process
+// so chilren process terminate too. Thus child_process that had been
+// executed can't finish process of restarting server.
+// http://nodejs.org/api/child_process.html
+// Advanced ci: http://www.carbonsilk.com/node/deploying-nodejs-apps/
+// tags: ci, continious integration
+var exec = require('child_process').exec;
+var spawn = require('child_process').spawn;
+//var execFile = require('child_process').execFile;
+function restartServer(){
+    //execFile('./restart.sh');
+    //exec("sudo service node38 restart", function (error, stdout, stderr) {
+    //    if (error !== null) console.log('exec error: ' + error);
+    //});
+    //spawn("sudo service node38 restart");
+    //spawn("sudo", ['service', 'node38', 'restart']);
+
+    // spawn will ruin server so Forever should back it up.
+    spawn("sudo service node38 restart");
+}
+function updateServer(callback){
+    // update from github
+    exec("git --git-dir=" + path.join(__dirname, '.git') + " --work-tree=" + __dirname + " pull origin master", callback);
+}
+
+function getHash(password){
+    var hash = crypto.createHash('sha512');
+    hash.update(password, 'utf8');
+
+    return hash.digest('base64');
+}
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -70,12 +105,14 @@ app.use(session({
 app.use(require('stylus').middleware(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', routes);
-app.use('/pg', predictionGame);
+//app.use('/', routes);
+app.use('/', predictionGame);
+//app.use('/pg', predictionGame);
 app.use('/api', api);
-app.use('/bootstrap', function(req, res){
-    res.render('bootstrapView1', {});
-});
+//app.use('/bootstrap', function(req, res){
+//    res.render('bootstrapView1', {});
+//});
+app.use('/restartServer', restartServerRoute);
 
 // variables
 var TODOs = [];
@@ -91,8 +128,9 @@ function readTODOs(callback){
     callback = callback || noop;
     readJSONFile(path.join(__dirname, 'usertodos.txt'), function(err, jsondata){
         if (jsondata){
-            TODOs = jsondata;
-            console.log("TODOs:", TODOs);
+            // extend, because I want to save link for original TODOs object which used in writeTODOs
+            _.extend(TODOs, jsondata);
+            //console.log("read TODOs:", TODOs);
             callback(err, TODOs);
         } else {
             console.log('No json data in file');
@@ -105,12 +143,10 @@ readTODOs();
 
 function writeTODO(newTODO){
     var filepath = path.join(__dirname, 'usertodos.txt');
-    readJSONFile(filepath, function(err, jsondata){
-        jsondata.push(newTODO);
-        writeJSONFile(filepath, jsondata, function(){
-            readTODOs();
-            console.log("newTODO was successfully added");
-        });
+    TODOs.push(newTODO);
+    console.log("updated TODOs before writing:", TODOs);
+    writeJSONFile(filepath, TODOs, function(){
+        console.log("newTODO was successfully added");
     });
 }
 
@@ -369,6 +405,11 @@ function collectOnlineStatistics(searchPlayersCount){
 // connect with api.js
 app.connectedCookies = connectedCookies;
 app.games = games;
+app.TODOs = TODOs;
+
+app.restartServer = restartServer;
+app.updateServer = updateServer;
+app.getHash = getHash;
 
 app.removeExpiredConnections = removeExpiredConnections;
 app.createPlayer = createPlayer;
